@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.user.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
@@ -18,6 +19,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserFactory userFactory;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public void register(RegistrationDto registrationDto) throws RegistrationException {
@@ -25,6 +29,8 @@ public class UserServiceImpl implements UserService {
 
 		User user = userFactory.getUserFromRegistrationDto(registrationDto);
 		user.setActivated(false);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setRole("USER");
 
 		userRepository.save(user);
 	}

@@ -27,6 +27,8 @@ public class User {
 
 	private String password;
 
+	private String role;
+
 	private boolean isActivated;
 
 	public long getId() {
@@ -83,6 +85,14 @@ public class User {
 
 	public void setActivated(boolean isActivated) {
 		this.isActivated = isActivated;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 }
