@@ -1,8 +1,14 @@
 package com.bridgelabz.todo.user.controllers;
 
+import java.io.IOException;
+
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +29,8 @@ public class UserController {
 	private WebApplicationContext context;
 	
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto) throws RegistrationException {
+	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto) throws RegistrationException, MessagingException, IOException {
+		
 		userService.register(registrationDto);
 		
 		Response response = context.getBean(Response.class);
@@ -32,4 +39,5 @@ public class UserController {
 		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
+	
 }

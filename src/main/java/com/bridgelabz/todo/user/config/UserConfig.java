@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.bridgelabz.todo.user.models.Email;
 import com.bridgelabz.todo.user.models.Response;
 import com.bridgelabz.todo.user.models.User;
 
@@ -20,5 +21,11 @@ public class UserConfig {
 	@Scope("prototype")
 	public Response response() {
 		return new Response();
+	}
+	
+	@Bean
+	@Scope("prototype")
+	public Email email() {
+		return new Email();
 	}
 }

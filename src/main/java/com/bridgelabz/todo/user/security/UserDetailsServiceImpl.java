@@ -25,7 +25,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		User user = userReposiroty.findByEmail(username);
 		
 		if (user == null) {
-			throw new BadCredentialsException("Invalid credentials");
+			throw new BadCredentialsException("Email id or password is incorrect");
+		}
+		
+		if(!user.isActivated()) {
+			throw new BadCredentialsException("Email id not verified");
 		}
 
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
