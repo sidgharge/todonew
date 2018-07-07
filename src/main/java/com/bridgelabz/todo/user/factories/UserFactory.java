@@ -16,7 +16,6 @@ public class UserFactory {
 
 	public User getUserFromRegistrationDto(RegistrationDto registrationDto) {
 		User user = context.getBean(User.class);
-		System.out.println(user.hashCode());
 		user.setFirstname(registrationDto.getFirstname());
 		user.setLastname(registrationDto.getLastname());
 		user.setEmail(registrationDto.getEmail());
