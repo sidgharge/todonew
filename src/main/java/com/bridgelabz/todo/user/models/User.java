@@ -30,7 +30,7 @@ public class User {
 	private String role;
 
 	private boolean isActivated;
-
+	
 	public long getId() {
 		return id;
 	}

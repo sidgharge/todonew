@@ -30,18 +30,18 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserFactory userFactory;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private EmailService emailService;
-	
+
 	@Value("${registration.template.path}")
 	private String emailTemplatePath;
 
 	@Override
-	public void register(RegistrationDto registrationDto, String url) throws RegistrationException, MessagingException, IOException {
+	public void register(RegistrationDto registrationDto, String url) throws IOException, MessagingException {
 		UserUtility.validateUser(registrationDto);
 
 		User user = userFactory.getUserFromRegistrationDto(registrationDto);
@@ -50,38 +50,36 @@ public class UserServiceImpl implements UserService {
 		user.setRole("USER");
 
 		userRepository.save(user);
-		
+
 		File mailFile = ResourceUtils.getFile(emailTemplatePath);
 		String mailText = new String(Files.readAllBytes(mailFile.toPath()));
-		
+
 		String token = UserUtility.generate(user.getId(), -1, "activation_token");
 		mailText = mailText.replace("@link", url + "/activate?token=" + token);
-		
+
 		Email email = userFactory.getEmail("ghargesiddharth@gmail.com", "User activation", mailText);
-		emailService.sendEmail(email);		
+		emailService.sendEmail(email);
 	}
-	
-	
+
 	@Override
 	public void activateUser(String token) throws UserActivationException {
 		try {
 			long userId = UserUtility.verify(token);
-			
+
 			Optional<User> optionalUser = userRepository.findById(userId);
-			
+
 			if (!optionalUser.isPresent()) {
 				throw new UserActivationException("User does not exist");
 			}
-			
+
 			User user = optionalUser.get();
 			user.setActivated(true);
-			
+
 			userRepository.save(user);
 		} catch (Exception e) {
 			throw new UserActivationException("Malformed link");
 		}
-		
+
 	}
-	
 
 }

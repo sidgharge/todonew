@@ -1,4 +1,4 @@
-package com.bridgelabz.todo.user.exceptionhandlers;
+package com.bridgelabz.todo.note.exceptionhandlers;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,54 +12,43 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.bridgelabz.todo.note.exceptions.EmptyNoteException;
+import com.bridgelabz.todo.note.exceptions.NoteOwnerNotFound;
+import com.bridgelabz.todo.user.exceptionhandlers.UserExceptionHandler;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
-import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.models.Response;
 
 @ControllerAdvice
-public class UserExceptionHandler {
+public class NoteExceptionHandler {
 
 	@Autowired
 	private WebApplicationContext context;
 
-	private final Logger logger = LoggerFactory.getLogger(UserExceptionHandler.class);
+	private final Logger logger = LoggerFactory.getLogger(NoteExceptionHandler.class);
 
-	@ExceptionHandler(RegistrationException.class)
-	public ResponseEntity<?> handleRegistrationException(RegistrationException exception, HttpServletRequest request,
+	@ExceptionHandler(EmptyNoteException.class)
+	public ResponseEntity<Response> handleEmptyNoteException(EmptyNoteException exception, HttpServletRequest request,
 			@RequestAttribute("reqId") String reqId) {
 		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
-				+ exception.getMessage());
+				+ exception.getMessage(), exception);
 
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
-		response.setStatus(-2);
+		response.setStatus(-4);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
-	@ExceptionHandler(UserActivationException.class)
-	public ResponseEntity<Response> handleActivationException(UserActivationException exception,
+	@ExceptionHandler(NoteOwnerNotFound.class)
+	public ResponseEntity<Response> handleNoteOwnerNotFooundException(NoteOwnerNotFound exception,
 			HttpServletRequest request, @RequestAttribute("reqId") String reqId) {
-		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
-				+ exception.getMessage());
-
-		Response response = context.getBean(Response.class);
-		response.setMessage(exception.getMessage());
-		response.setStatus(-3);
-
-		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handleRegistrationException(Exception exception, HttpServletRequest request,
-			@RequestAttribute("reqId") String reqId) {
 		logger.error("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
 				+ exception.getMessage());
 
 		Response response = context.getBean(Response.class);
-		response.setMessage("Something went wrong");
-		response.setStatus(-1);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-5);
 
-		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 }

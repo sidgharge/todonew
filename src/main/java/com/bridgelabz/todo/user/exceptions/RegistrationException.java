@@ -1,6 +1,6 @@
 package com.bridgelabz.todo.user.exceptions;
 
-public class RegistrationException extends Exception {
+public class RegistrationException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

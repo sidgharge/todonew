@@ -32,7 +32,7 @@ public class UserController {
 	private WebApplicationContext context;
 	
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request) throws RegistrationException, MessagingException, IOException {
+	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request) throws MessagingException, IOException {
 		
 		String url = UserUtility.getRequestUrl(request);
 		userService.register(registrationDto, url);
