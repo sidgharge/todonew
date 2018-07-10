@@ -14,8 +14,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.bridgelabz.todo.note.exceptions.EmptyNoteException;
 import com.bridgelabz.todo.note.exceptions.NoteOwnerNotFound;
-import com.bridgelabz.todo.user.exceptionhandlers.UserExceptionHandler;
-import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.models.Response;
 
 @ControllerAdvice

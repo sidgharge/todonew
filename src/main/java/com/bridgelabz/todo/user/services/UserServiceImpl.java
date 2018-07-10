@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.Email;

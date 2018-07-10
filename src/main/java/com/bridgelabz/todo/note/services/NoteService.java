@@ -1,8 +1,10 @@
 package com.bridgelabz.todo.note.services;
 
-import com.bridgelabz.todo.note.models.NoteDto;
+import com.bridgelabz.todo.note.models.CreateNoteDto;
 
 public interface NoteService {
 
-	void createNote(NoteDto noteDto, long userId);
+	void createNote(CreateNoteDto noteDto, long userId);
+
+	void updateNote(CreateNoteDto noteDto, long noteId, long userId);
 }

@@ -28,7 +28,7 @@ public class UserExceptionHandler {
 	public ResponseEntity<?> handleRegistrationException(RegistrationException exception, HttpServletRequest request,
 			@RequestAttribute("reqId") String reqId) {
 		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
-				+ exception.getMessage());
+				+ exception.getMessage(), exception);
 
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
@@ -41,7 +41,7 @@ public class UserExceptionHandler {
 	public ResponseEntity<Response> handleActivationException(UserActivationException exception,
 			HttpServletRequest request, @RequestAttribute("reqId") String reqId) {
 		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
-				+ exception.getMessage());
+				+ exception.getMessage(), exception);
 
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
@@ -54,7 +54,7 @@ public class UserExceptionHandler {
 	public ResponseEntity<?> handleRegistrationException(Exception exception, HttpServletRequest request,
 			@RequestAttribute("reqId") String reqId) {
 		logger.error("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
-				+ exception.getMessage());
+				+ exception.getMessage(), exception);
 
 		Response response = context.getBean(Response.class);
 		response.setMessage("Something went wrong");

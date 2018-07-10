@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -29,11 +31,14 @@ public class Note {
 
 	private Date createdAt;
 
-	private Date updatedAt;
+	private String imageUrl;
 
 	@ManyToOne
-	@JoinColumn(name="ownerId")
+	@JoinColumn(name = "ownerId")
 	private User owner;
+
+	@OneToMany(mappedBy = "note")
+	private List<NoteExtras> noteExtras;
 
 	public long getId() {
 		return id;
@@ -67,20 +72,28 @@ public class Note {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
 	public User getOwner() {
 		return owner;
 	}
 
 	public void setOwner(User owner) {
 		this.owner = owner;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public List<NoteExtras> getNoteExtras() {
+		return noteExtras;
+	}
+
+	public void setNoteExtras(List<NoteExtras> noteExtras) {
+		this.noteExtras = noteExtras;
 	}
 
 }

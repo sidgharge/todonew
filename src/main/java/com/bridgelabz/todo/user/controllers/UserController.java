@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
 import com.bridgelabz.todo.user.models.Response;
