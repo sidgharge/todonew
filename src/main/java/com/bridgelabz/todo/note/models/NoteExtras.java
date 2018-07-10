@@ -8,9 +8,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.bridgelabz.todo.user.models.User;
 
 @Entity
 @Table
@@ -34,6 +37,9 @@ public class NoteExtras {
 	@ManyToOne
 	@JoinColumn(name = "noteId")
 	private Note note;
+
+	@OneToOne
+	private User owner;
 
 	private Date updatedAt;
 
@@ -99,6 +105,14 @@ public class NoteExtras {
 
 	public void setReminder(Date reminder) {
 		this.reminder = reminder;
+	}
+
+	public User getOwner() {
+		return owner;
+	}
+
+	public void setOwner(User owner) {
+		this.owner = owner;
 	}
 
 }

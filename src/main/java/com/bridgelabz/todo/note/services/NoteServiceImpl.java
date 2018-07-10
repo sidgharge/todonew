@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.bridgelabz.todo.note.exceptions.NoteNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteOwnerNotFound;
+import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
@@ -22,50 +25,80 @@ import com.bridgelabz.todo.user.repositories.UserRepository;
 
 @Service
 public class NoteServiceImpl implements NoteService {
-	
+
 	@Autowired
 	private NoteFactory noteFactory;
-	
+
 	@Autowired
 	private NoteRepository noteRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private WebApplicationContext context;
-	
+
 	@Autowired
 	private NoteExtrasRepository noteExtrasRepository;
 
 	@Override
 	public void createNote(CreateNoteDto noteDto, long userId) {
 		NotesUtility.validateNote(noteDto);
-		
+
 		Note note = noteFactory.getNoteFromCreateNoteDto(noteDto);
 		
+		Date createdAt = new Date();
+		note.setCreatedAt(createdAt);
+
 		NoteExtras extras = null;
-		
+
 		if (noteDto.getNoteExtras() != null) {
 			extras = noteFactory.getNoteExtrasFromCreateNoteExtrasDto(noteDto.getNoteExtras());
 		} else {
 			extras = context.getBean(NoteExtras.class);
 		}
-		
-		Date createdAt = new Date();
-		note.setCreatedAt(createdAt);
-		
-		List<NoteExtras> noteExtras = new LinkedList<>();
-		noteExtras.add(extras);
-		
+
 		extras.setUpdatedAt(createdAt);
+		extras.setNote(note);
 		
 		if (extras.getColor() == null || extras.getColor().isEmpty()) {
 			extras.setColor("#FFFFFF");
 		}
 		
+		List<NoteExtras> noteExtras = new LinkedList<>();
+		noteExtras.add(extras);
+
 		note.setNoteExtras(noteExtras);
-		extras.setNote(note);
+
+		Optional<User> optionalUser = userRepository.findById(userId);
+
+		if (!optionalUser.isPresent()) {
+			throw new NoteOwnerNotFound("Note owner does not exist");
+		}
+
+		User owner = optionalUser.get();
+
+		note.setOwner(owner);
+		extras.setOwner(owner);
+
+		noteRepository.save(note);
+
+		noteExtrasRepository.save(extras);
+	}
+
+	@Override
+	public void updateNote(UpdateNoteDto noteDto, long userId) {
+		Optional<Note> optionalNote = noteRepository.findById(noteDto.getId());
+		
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Cannot find note with id " + noteDto.getId());
+		}
+		
+		Note note = optionalNote.get();
+		
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
 		
 		Optional<User> optionalUser = userRepository.findById(userId);
 		
@@ -75,16 +108,10 @@ public class NoteServiceImpl implements NoteService {
 		
 		User owner = optionalUser.get();
 		
-		note.setOwner(owner);
+		note.setTitle(noteDto.getTitle());
+		note.setBody(noteDto.getBody());
 		
-		noteRepository.save(note);
-		
-		noteExtrasRepository.save(extras);
-	}
-
-	@Override
-	public void updateNote(CreateNoteDto noteDto, long noteId, long userId) {
-		
+		noteExtrasRepository.findByOwner(owner);
 	}
 
 }

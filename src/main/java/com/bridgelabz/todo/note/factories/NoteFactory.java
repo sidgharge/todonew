@@ -20,6 +20,7 @@ public class NoteFactory {
 		
 		note.setTitle(noteDto.getTitle());
 		note.setBody(noteDto.getBody());
+		note.setImageUrl(noteDto.getImageUrl());
 		
 		return note;
 	}
