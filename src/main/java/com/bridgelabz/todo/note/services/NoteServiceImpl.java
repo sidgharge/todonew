@@ -14,12 +14,15 @@ import com.bridgelabz.todo.note.exceptions.NoteOwnerNotFound;
 import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
 import com.bridgelabz.todo.note.models.Note;
+import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.note.models.NoteExtrasDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.repositories.UserRepository;
 
@@ -41,19 +44,22 @@ public class NoteServiceImpl implements NoteService {
 	@Autowired
 	private NoteExtrasRepository noteExtrasRepository;
 
+	@Autowired
+	private UserFactory userFactory;
+	
 	@Override
-	public void createNote(CreateNoteDto noteDto, long userId) {
-		NotesUtility.validateNote(noteDto);
+	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) {
+		NotesUtility.validateNote(createNoteDto);
 
-		Note note = noteFactory.getNoteFromCreateNoteDto(noteDto);
+		Note note = noteFactory.getNoteFromCreateNoteDto(createNoteDto);
 		
 		Date createdAt = new Date();
 		note.setCreatedAt(createdAt);
 
 		NoteExtras extras = null;
 
-		if (noteDto.getNoteExtras() != null) {
-			extras = noteFactory.getNoteExtrasFromCreateNoteExtrasDto(noteDto.getNoteExtras());
+		if (createNoteDto.getNoteExtras() != null) {
+			extras = noteFactory.getNoteExtrasFromCreateNoteExtrasDto(createNoteDto.getNoteExtras());
 		} else {
 			extras = context.getBean(NoteExtras.class);
 		}
@@ -72,10 +78,6 @@ public class NoteServiceImpl implements NoteService {
 
 		Optional<User> optionalUser = userRepository.findById(userId);
 
-		if (!optionalUser.isPresent()) {
-			throw new NoteOwnerNotFound("Note owner does not exist");
-		}
-
 		User owner = optionalUser.get();
 
 		note.setOwner(owner);
@@ -84,6 +86,13 @@ public class NoteServiceImpl implements NoteService {
 		noteRepository.save(note);
 
 		noteExtrasRepository.save(extras);
+		
+		NoteDto noteDto = noteFactory.getNoteDtoFromNote(note);
+		NoteExtrasDto noteExtrasDto = noteFactory.getNoteExtrasDtoFromNoteExtras(extras);
+		
+		noteDto.setNoteExtras(noteExtrasDto);
+		
+		return noteDto;
 	}
 
 	@Override
@@ -100,18 +109,19 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 		
-		Optional<User> optionalUser = userRepository.findById(userId);
-		
-		if (!optionalUser.isPresent()) {
-			throw new NoteOwnerNotFound("Note owner does not exist");
-		}
-		
-		User owner = optionalUser.get();
-		
 		note.setTitle(noteDto.getTitle());
 		note.setBody(noteDto.getBody());
 		
-		noteExtrasRepository.findByOwner(owner);
+		noteRepository.save(note);
+		
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+		
+		NoteExtras extras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+		
+		extras.setUpdatedAt(new Date());
+		
+		noteExtrasRepository.save(extras);
 	}
 
 }
