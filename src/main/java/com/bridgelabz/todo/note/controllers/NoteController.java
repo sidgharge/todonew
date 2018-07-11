@@ -1,11 +1,14 @@
 package com.bridgelabz.todo.note.controllers;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +50,15 @@ public class NoteController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// @DeleteMapping("/delete/{id}")
-	// public
+//	 @DeleteMapping("/delete/{id}")
+//	 public void deleteNote(@PathVariable("id") long noteId, Principal principal) {
+//		 noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
+//	 }
+	
+	@GetMapping("/all")
+	public ResponseEntity<List<NoteDto>> getAllNotes(Principal principal) {
+		List<NoteDto> notes = noteService.getAllNotes(Long.parseLong(principal.getName()));
+		
+		return new ResponseEntity<>(notes, HttpStatus.OK);
+	}
 }

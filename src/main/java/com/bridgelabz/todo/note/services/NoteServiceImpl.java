@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.services;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -123,5 +124,51 @@ public class NoteServiceImpl implements NoteService {
 		
 		noteExtrasRepository.save(extras);
 	}
+
+	@Override
+	public void deleteNote(long noteId, long userId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<NoteDto> getAllNotes(long userId) {
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+		
+		List<Note> notes = noteRepository.findByOwner(owner);
+		
+		List<NoteDto> noteDtos = new LinkedList<>();
+		for(Note note: notes) {
+			NoteDto noteDto = noteFactory.getNoteDtoFromNote(note);
+			
+			NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+			NoteExtrasDto noteExtrasDto = noteFactory.getNoteExtrasDtoFromNoteExtras(noteExtras);
+			
+			noteDto.setNoteExtras(noteExtrasDto);
+			
+			noteDtos.add(noteDto);
+		}
+		
+		return noteDtos;
+	}
+
+//	@Override
+//	public void deleteNote(long noteId, long userId) {
+//		Optional<Note> optionalNote = noteRepository.findById(noteId);
+//		
+//		if (!optionalNote.isPresent()) {
+//			throw new NoteNotFoundException("Cannot find note with id " + noteId);
+//		}
+//		
+//		Note note = optionalNote.get();
+//		
+//		if (note.getOwner().getId() != userId) {
+//			throw new UnAuthorizedException("User does not own the note");
+//		}
+//		
+//		noteRepository.delete(note);
+//		
+//	}
 
 }
