@@ -29,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManager();
 	}
 
-	@Override
+/*	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				// .httpBasic()
@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// .and()
 				.csrf().disable();
 	}
-	
+	*/
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
