@@ -31,6 +31,8 @@ public class Note {
 
 	private Date createdAt;
 
+	private Date updatedAt;
+
 	private String imageUrl;
 
 	@ManyToOne
@@ -70,6 +72,14 @@ public class Note {
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	public User getOwner() {

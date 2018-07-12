@@ -14,6 +14,8 @@ public class NoteDto {
 
 	private String imageUrl;
 
+	private Date updatedAt;
+
 	private NoteExtrasDto noteExtras;
 
 	public long getId() {
@@ -46,6 +48,14 @@ public class NoteDto {
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	public String getImageUrl() {

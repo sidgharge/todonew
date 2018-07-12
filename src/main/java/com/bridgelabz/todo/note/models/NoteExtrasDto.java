@@ -16,8 +16,6 @@ public class NoteExtrasDto {
 
 	private Date reminder;
 
-	private Date updatedAt;
-
 	public long getId() {
 		return id;
 	}
@@ -64,14 +62,6 @@ public class NoteExtrasDto {
 
 	public void setReminder(Date reminder) {
 		this.reminder = reminder;
-	}
-
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 
 }

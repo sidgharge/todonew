@@ -56,7 +56,8 @@ public class NoteServiceImpl implements NoteService {
 		
 		Date createdAt = new Date();
 		note.setCreatedAt(createdAt);
-
+		note.setUpdatedAt(createdAt);
+		
 		NoteExtras extras = null;
 
 		if (createNoteDto.getNoteExtras() != null) {
@@ -65,7 +66,6 @@ public class NoteServiceImpl implements NoteService {
 			extras = context.getBean(NoteExtras.class);
 		}
 
-		extras.setUpdatedAt(createdAt);
 		extras.setNote(note);
 		
 		if (extras.getColor() == null || extras.getColor().isEmpty()) {
@@ -77,9 +77,8 @@ public class NoteServiceImpl implements NoteService {
 
 		note.setNoteExtras(noteExtras);
 
-		Optional<User> optionalUser = userRepository.findById(userId);
-
-		User owner = optionalUser.get();
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
 
 		note.setOwner(owner);
 		extras.setOwner(owner);
@@ -112,17 +111,9 @@ public class NoteServiceImpl implements NoteService {
 		
 		note.setTitle(noteDto.getTitle());
 		note.setBody(noteDto.getBody());
+		note.setUpdatedAt(new Date());
 		
 		noteRepository.save(note);
-		
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-		
-		NoteExtras extras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-		
-		extras.setUpdatedAt(new Date());
-		
-		noteExtrasRepository.save(extras);
 	}
 
 	@Override

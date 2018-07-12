@@ -41,8 +41,6 @@ public class NoteExtras {
 	@OneToOne
 	private User owner;
 
-	private Date updatedAt;
-
 	public long getId() {
 		return id;
 	}
@@ -89,14 +87,6 @@ public class NoteExtras {
 
 	public void setColor(String color) {
 		this.color = color;
-	}
-
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 
 	public Date getReminder() {

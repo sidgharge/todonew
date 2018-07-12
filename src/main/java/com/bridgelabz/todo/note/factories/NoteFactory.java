@@ -49,6 +49,7 @@ public class NoteFactory {
 		noteDto.setTitle(note.getTitle());
 		noteDto.setBody(note.getBody());
 		noteDto.setCreatedAt(note.getCreatedAt());
+		noteDto.setUpdatedAt(note.getUpdatedAt());
 		
 		return noteDto;
 	}
@@ -62,7 +63,6 @@ public class NoteFactory {
 		noteExtrasDto.setPinned(noteExtras.isPinned());
 		noteExtrasDto.setReminder(noteExtras.getReminder());
 		noteExtrasDto.setTrashed(noteExtras.isTrashed());
-		noteExtrasDto.setUpdatedAt(noteExtras.getUpdatedAt());
 		
 		return noteExtrasDto;
 	}
