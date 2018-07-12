@@ -25,4 +25,6 @@ public interface NoteService {
 	void changeTrashStatus(long noteId, boolean status, long userId);
 
 	String saveImage(MultipartFile image, long userId);
+
+	void addReminder(long noteId, long time, long userId);
 }

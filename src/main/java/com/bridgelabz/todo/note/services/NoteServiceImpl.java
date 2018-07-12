@@ -244,22 +244,19 @@ public class NoteServiceImpl implements NoteService {
 		return "images/" + file.getName();
 	}
 
-	// @Override
-	// public void deleteNote(long noteId, long userId) {
-	// Optional<Note> optionalNote = noteRepository.findById(noteId);
-	//
-	// if (!optionalNote.isPresent()) {
-	// throw new NoteNotFoundException("Cannot find note with id " + noteId);
-	// }
-	//
-	// Note note = optionalNote.get();
-	//
-	// if (note.getOwner().getId() != userId) {
-	// throw new UnAuthorizedException("User does not own the note");
-	// }
-	//
-	// noteRepository.delete(note);
-	//
-	// }
+	@Override
+	public void addReminder(long noteId, long time, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+	}
 
 }

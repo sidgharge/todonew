@@ -2,6 +2,7 @@ package com.bridgelabz.todo.note.controllers;
 
 import java.net.MalformedURLException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -102,6 +103,14 @@ public class NoteController {
 		response.setStatus(1);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PutMapping("/add-reminder/{id}/{date}")
+	public void addRemoveReminder(@PathVariable("id") long noteId,
+			@PathVariable("date") long time, Principal principal){
+		Date date = new Date(time * 1000);
+		System.out.println(date);
+		noteService.addReminder(noteId, time, Long.parseLong(principal.getName()));
 	}
 
 	@PostMapping("/image-upload")
