@@ -15,4 +15,10 @@ public interface NoteService {
 	void deleteNote(long noteId, long userId);
 
 	List<NoteDto> getAllNotes(long userId);
+
+	void changePinStatus(long noteId, boolean status, long userId);
+
+	void changeArchiveStatus(long noteId, boolean status, long userId);
+
+	void changeTrashStatus(long noteId, boolean status, long userId);
 }

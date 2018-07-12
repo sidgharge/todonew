@@ -3,6 +3,7 @@ package com.bridgelabz.todo.note.models;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,11 +35,11 @@ public class NoteExtras {
 
 	private Date reminder;
 
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "noteId")
 	private Note note;
 
-	@OneToOne
+	@OneToOne(fetch=FetchType.LAZY)
 	private User owner;
 
 	public long getId() {

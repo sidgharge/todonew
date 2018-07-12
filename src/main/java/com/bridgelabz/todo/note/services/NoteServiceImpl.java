@@ -144,6 +144,75 @@ public class NoteServiceImpl implements NoteService {
 		return noteDtos;
 	}
 
+	@Override
+	public void changePinStatus(long noteId, boolean status, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+		
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+		
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+		
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+		
+		if (status) {
+			noteExtras.setArchived(false);
+		}
+		
+		noteExtras.setPinned(status);
+		
+		noteExtrasRepository.save(noteExtras);
+	}
+
+	@Override
+	public void changeArchiveStatus(long noteId, boolean status, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+		
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+		
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+		
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+		
+		if (status) {
+			noteExtras.setPinned(false);
+		}
+		
+		noteExtras.setArchived(status);
+		
+		noteExtrasRepository.save(noteExtras);
+	}
+	
+	@Override
+	public void changeTrashStatus(long noteId, boolean status, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+		
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+		
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+		
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+		
+		if (status) {
+			noteExtras.setPinned(false);
+		}
+		
+		noteExtras.setTrashed(status);
+		
+		noteExtrasRepository.save(noteExtras);
+	}
+
 //	@Override
 //	public void deleteNote(long noteId, long userId) {
 //		Optional<Note> optionalNote = noteRepository.findById(noteId);

@@ -23,7 +23,7 @@ import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.user.models.Response;
 
 @RestController
-@RequestMapping("/notes")
+@RequestMapping("notes")
 public class NoteController {
 
 	@Autowired
@@ -45,6 +45,51 @@ public class NoteController {
 
 		Response response = context.getBean(Response.class);
 		response.setMessage("Note updated successfully");
+		response.setStatus(1);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PutMapping("/pin-unpin/{id}/{status}")
+	public ResponseEntity<Response> pinUnpin(@PathVariable("id") long noteId, @PathVariable("status") boolean status, Principal principal){
+		noteService.changePinStatus(noteId, status, Long.parseLong(principal.getName()));
+		
+		Response response = context.getBean(Response.class);
+		if (status) {
+			response.setMessage("Note pinned successfully");
+		} else {
+			response.setMessage("Note un-pinned successfully");
+		}
+		response.setStatus(1);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PutMapping("/archive-unarchive/{id}/{status}")
+	public ResponseEntity<Response> archiveUnarchive(@PathVariable("id") long noteId, @PathVariable("status") boolean status, Principal principal){
+		noteService.changeArchiveStatus(noteId, status, Long.parseLong(principal.getName()));
+		
+		Response response = context.getBean(Response.class);
+		if (status) {
+			response.setMessage("Note archived successfully");
+		} else {
+			response.setMessage("Note un-archived successfully");
+		}
+		response.setStatus(1);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PutMapping("/trash-restore/{id}/{status}")
+	public ResponseEntity<Response> trashRestore(@PathVariable("id") long noteId, @PathVariable("status") boolean status, Principal principal){
+		noteService.changeArchiveStatus(noteId, status, Long.parseLong(principal.getName()));
+		
+		Response response = context.getBean(Response.class);
+		if (status) {
+			response.setMessage("Note trashed successfully");
+		} else {
+			response.setMessage("Note restored successfully");
+		}
 		response.setStatus(1);
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
