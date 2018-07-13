@@ -21,7 +21,6 @@ import com.bridgelabz.todo.note.factories.NoteFactory;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
-import com.bridgelabz.todo.note.models.NoteExtrasDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
@@ -54,39 +53,18 @@ public class NoteServiceImpl implements NoteService {
 		note.setCreatedAt(createdAt);
 		note.setUpdatedAt(createdAt);
 
-		NoteExtras extras = null;
-
-		if (createNoteDto.getNoteExtras() != null) {
-			extras = noteFactory.getNoteExtrasFromCreateNoteExtrasDto(createNoteDto.getNoteExtras());
-		} else {
-			extras = context.getBean(NoteExtras.class);
-		}
-
-		extras.setNote(note);
-
-		if (extras.getColor() == null || extras.getColor().isEmpty()) {
-			extras.setColor("#FFFFFF");
-		}
-
-		List<NoteExtras> noteExtras = new LinkedList<>();
-		noteExtras.add(extras);
-
-		note.setNoteExtras(noteExtras);
-
 		User owner = context.getBean(User.class);
 		owner.setId(userId);
 
 		note.setOwner(owner);
+		NoteExtras extras = note.getNoteExtras().get(0);
 		extras.setOwner(owner);
 
 		noteRepository.save(note);
 
 		noteExtrasRepository.save(extras);
 
-		NoteDto noteDto = noteFactory.getNoteDtoFromNote(note);
-		NoteExtrasDto noteExtrasDto = noteFactory.getNoteExtrasDtoFromNoteExtras(extras);
-
-		noteDto.setNoteExtras(noteExtrasDto);
+		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
 
 		return noteDto;
 	}
@@ -138,12 +116,8 @@ public class NoteServiceImpl implements NoteService {
 
 		List<NoteDto> noteDtos = new LinkedList<>();
 		for (Note note : notes) {
-			NoteDto noteDto = noteFactory.getNoteDtoFromNote(note);
-
 			NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-			NoteExtrasDto noteExtrasDto = noteFactory.getNoteExtrasDtoFromNoteExtras(noteExtras);
-
-			noteDto.setNoteExtras(noteExtrasDto);
+			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, noteExtras);
 
 			noteDtos.add(noteDto);
 		}
