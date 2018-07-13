@@ -2,7 +2,6 @@ package com.bridgelabz.todo.note.controllers;
 
 import java.net.MalformedURLException;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -139,11 +138,11 @@ public class NoteController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	// @DeleteMapping("/delete/{id}")
-	// public void deleteNote(@PathVariable("id") long noteId, Principal principal)
-	// {
-	// noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
-	// }
+	 @DeleteMapping("/delete/{id}")
+	 public void deleteNote(@PathVariable("id") long noteId, Principal principal)
+	 {
+	 noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
+	 }
 
 	@GetMapping("/all")
 	public ResponseEntity<List<NoteDto>> getAllNotes(Principal principal) {

@@ -2,11 +2,9 @@ package com.bridgelabz.todo.note.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.bridgelabz.todo.note.exceptions.NoteNotFoundException;
-import com.bridgelabz.todo.note.exceptions.NoteOwnerNotFound;
 import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
 import com.bridgelabz.todo.note.models.Note;
@@ -31,9 +27,7 @@ import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
-import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
-import com.bridgelabz.todo.user.repositories.UserRepository;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -120,8 +114,19 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public void deleteNote(long noteId, long userId) {
-		// TODO Auto-generated method stub
-
+		Optional<Note> optionalNote = noteRepository.findById(noteId);
+		
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Cannot find note with id " + noteId);
+		}
+		
+		Note note = optionalNote.get();
+		
+		for (NoteExtras noteExtras : note.getNoteExtras()) {
+			noteExtrasRepository.delete(noteExtras);
+		}
+		
+		noteRepository.delete(note);
 	}
 
 	@Override
