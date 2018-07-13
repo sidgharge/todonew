@@ -106,11 +106,26 @@ public class NoteController {
 	}
 	
 	@PutMapping("/add-reminder/{id}/{date}")
-	public void addRemoveReminder(@PathVariable("id") long noteId,
+	public ResponseEntity<Response> addRemoveReminder(@PathVariable("id") long noteId,
 			@PathVariable("date") long time, Principal principal){
-		Date date = new Date(time * 1000);
-		System.out.println(date);
 		noteService.addReminder(noteId, time, Long.parseLong(principal.getName()));
+		
+		Response response = context.getBean(Response.class);
+		response.setMessage("Reminder added successfully");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/remove-reminder/{id}")
+	public ResponseEntity<Response> removeReminder(@PathVariable("id") long noteId, Principal principal) {
+		noteService.removeReminnder(noteId, Long.parseLong(principal.getName()));
+		
+		Response response = context.getBean(Response.class);
+		response.setMessage("Reminder removed successfully");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/image-upload")
@@ -123,7 +138,7 @@ public class NoteController {
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
+	
 	// @DeleteMapping("/delete/{id}")
 	// public void deleteNote(@PathVariable("id") long noteId, Principal principal)
 	// {

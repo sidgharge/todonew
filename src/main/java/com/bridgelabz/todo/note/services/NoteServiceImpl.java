@@ -45,16 +45,10 @@ public class NoteServiceImpl implements NoteService {
 	private NoteRepository noteRepository;
 
 	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
 	private WebApplicationContext context;
 
 	@Autowired
 	private NoteExtrasRepository noteExtrasRepository;
-
-	@Autowired
-	private UserFactory userFactory;
 
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) {
@@ -257,6 +251,29 @@ public class NoteServiceImpl implements NoteService {
 		if (noteExtras == null) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
+		
+		noteExtras.setReminder(new Date(time * 1000));
+		
+		noteExtrasRepository.save(noteExtras);
+	}
+
+	@Override
+	public void removeReminnder(long noteId, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+		
+		noteExtras.setReminder(null);
+		
+		noteExtrasRepository.save(noteExtras);
 	}
 
 }

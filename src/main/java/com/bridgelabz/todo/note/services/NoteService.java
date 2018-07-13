@@ -27,4 +27,6 @@ public interface NoteService {
 	String saveImage(MultipartFile image, long userId);
 
 	void addReminder(long noteId, long time, long userId);
+
+	void removeReminnder(long noteId, long userId);
 }
