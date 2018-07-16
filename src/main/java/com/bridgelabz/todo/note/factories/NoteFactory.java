@@ -10,7 +10,9 @@ import org.springframework.web.context.WebApplicationContext;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.note.repositories.LabelDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
+import com.bridgelabz.todo.note.models.Label;
 
 @Component
 public class NoteFactory {
@@ -44,17 +46,6 @@ public class NoteFactory {
 		return note;
 	}
 
-//	public NoteExtras getNoteExtrasFromCreateNoteExtrasDto(CreateNoteExtrasDto createNoteExtrasDto) {
-//		NoteExtras noteExtras = context.getBean(NoteExtras.class);
-//		
-//		noteExtras.setArchived(createNoteExtrasDto.isArchived());
-//		noteExtras.setColor(createNoteExtrasDto.getColor());
-//		noteExtras.setPinned(createNoteExtrasDto.isPinned());
-//		noteExtras.setReminder(createNoteExtrasDto.getReminder());
-//		noteExtras.setTrashed(createNoteExtrasDto.isTrashed());
-//		
-//		return noteExtras;
-//	}
 	
 	public NoteDto getNoteDtoFromNoteAndExtras(Note note, NoteExtras extras) {
 		NoteDto noteDto = context.getBean(NoteDto.class);
@@ -75,16 +66,12 @@ public class NoteFactory {
 		return noteDto;
 	}
 
-//	public NoteExtrasDto getNoteExtrasDtoFromNoteExtras(NoteExtras noteExtras) {
-//		NoteExtrasDto noteExtrasDto = context.getBean(NoteExtrasDto.class);
-//		
-//		noteExtrasDto.setId(noteExtras.getId());
-//		noteExtrasDto.setArchived(noteExtras.isArchived());
-//		noteExtrasDto.setColor(noteExtras.getColor());
-//		noteExtrasDto.setPinned(noteExtras.isPinned());
-//		noteExtrasDto.setReminder(noteExtras.getReminder());
-//		noteExtrasDto.setTrashed(noteExtras.isTrashed());
-//		
-//		return noteExtrasDto;
-//	}
+	public LabelDto getLabelDtoFromLabel(Label label) {
+		LabelDto labelDto = context.getBean(LabelDto.class);
+		
+		labelDto.setId(label.getId());
+		labelDto.setName(label.getName());
+		
+		return labelDto;
+	}
 }

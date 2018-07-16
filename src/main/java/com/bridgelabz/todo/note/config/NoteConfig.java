@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.note.repositories.LabelDto;
 
 @Configuration
 public class NoteConfig {
@@ -23,16 +24,16 @@ public class NoteConfig {
 		return new NoteExtras();
 	}
 	
-//	@Bean
-//	@Scope("prototype")
-//	public NoteExtrasDto noteExtrasDto() {
-//		return new NoteExtrasDto();
-//	}
-	
 	@Bean
 	@Scope("prototype")
 	public NoteDto noteDto() {
 		return new NoteDto();
+	}
+	
+	@Bean
+	@Scope("prototype")
+	public LabelDto labelDto() {
+		return new LabelDto();
 	}
 
 }
