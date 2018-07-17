@@ -2,6 +2,7 @@ package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,16 +39,17 @@ public class NoteExtras {
 
 	private Date reminder;
 
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "noteId")
 	private Note note;
 
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	private User owner;
-	
+
 	@ManyToMany
-	@JoinTable(name="NoteLabel", joinColumns= { @JoinColumn(name="NEId")}, inverseJoinColumns= {@JoinColumn(name="labelId")})
-	private List<Label> labels;
+	@JoinTable(name = "NoteLabel", joinColumns = { @JoinColumn(name = "NEId") }, inverseJoinColumns = {
+			@JoinColumn(name = "labelId") })
+	private Set<Label> labels;
 
 	public long getId() {
 		return id;
@@ -111,6 +113,14 @@ public class NoteExtras {
 
 	public void setOwner(User owner) {
 		this.owner = owner;
+	}
+
+	public Set<Label> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Set<Label> labels) {
+		this.labels = labels;
 	}
 
 }

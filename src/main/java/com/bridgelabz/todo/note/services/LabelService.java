@@ -13,5 +13,11 @@ public interface LabelService {
 	void updateLabel(LabelDto labelDto, long userId) throws LabelNotFoundException, LabelNameNotUniqueException;
 
 	List<LabelDto> getLabels(long userId);
+	
+	void deleteLabel(long id, long userId) throws LabelNotFoundException;
+
+	void addLabel(long labelId, long noteId, long userId) throws LabelNotFoundException;
+
+	void removeLabel(long labelId, long noteId, long userId) throws LabelNotFoundException;
 
 }
