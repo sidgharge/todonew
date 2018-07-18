@@ -19,7 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.bridgelabz.todo.note.exceptions.LabelNameNotUniqueException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
-import com.bridgelabz.todo.note.repositories.LabelDto;
+import com.bridgelabz.todo.note.models.LabelDto;
 import com.bridgelabz.todo.note.services.LabelService;
 import com.bridgelabz.todo.user.models.Response;
 

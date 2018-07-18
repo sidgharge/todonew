@@ -1,4 +1,4 @@
-package com.bridgelabz.todo.note.repositories;
+package com.bridgelabz.todo.note.models;
 
 public class LabelDto {
 

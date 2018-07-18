@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteNotFoundException;
 import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
@@ -23,6 +25,8 @@ import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
+import com.bridgelabz.todo.note.models.Label;
+import com.bridgelabz.todo.note.repositories.LabelRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
@@ -43,8 +47,11 @@ public class NoteServiceImpl implements NoteService {
 	@Autowired
 	private NoteExtrasRepository noteExtrasRepository;
 
+	@Autowired
+	private LabelRepository labelRepository;
+
 	@Override
-	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) {
+	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
 		NotesUtility.validateNote(createNoteDto);
 
 		Note note = noteFactory.getNoteFromCreateNoteDto(createNoteDto);
@@ -61,6 +68,28 @@ public class NoteServiceImpl implements NoteService {
 		extras.setOwner(owner);
 
 		noteRepository.save(note);
+
+		extras.setLabels(new HashSet<>());
+		if (createNoteDto.getLabels() != null) {
+			for (long labelId : createNoteDto.getLabels()) {
+				Optional<Label> optionalLabel = labelRepository.findById(labelId);
+
+				// if (!optionalLabel.isPresent()) {
+				// throw new LabelNotFoundException("Label with id " + labelId + " does not
+				// exist");
+				// }
+
+				Label label = optionalLabel.get();
+
+				// if (label.getOwner().getId() != userId) {
+				// throw new UnAuthorizedException("User does not own the label");
+				// }
+
+				if (label.getOwner().getId() == userId) {
+					extras.getLabels().add(label);
+				}
+			}
+		}
 
 		noteExtrasRepository.save(extras);
 
@@ -93,17 +122,17 @@ public class NoteServiceImpl implements NoteService {
 	@Override
 	public void deleteNote(long noteId, long userId) {
 		Optional<Note> optionalNote = noteRepository.findById(noteId);
-		
+
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Cannot find note with id " + noteId);
 		}
-		
+
 		Note note = optionalNote.get();
-		
+
 		for (NoteExtras noteExtras : note.getNoteExtras()) {
 			noteExtrasRepository.delete(noteExtras);
 		}
-		
+
 		noteRepository.delete(note);
 	}
 
@@ -199,7 +228,7 @@ public class NoteServiceImpl implements NoteService {
 		String ext = image.getOriginalFilename();
 		ext = ext.substring(ext.lastIndexOf('.'));
 		File file = new File("images/" + UUID.randomUUID().toString() + ext);
-		try(InputStream inputStream = image.getInputStream(); OutputStream outputStream = new FileOutputStream(file)) {
+		try (InputStream inputStream = image.getInputStream(); OutputStream outputStream = new FileOutputStream(file)) {
 			if (!file.exists()) {
 				file.createNewFile();
 			}
@@ -213,7 +242,7 @@ public class NoteServiceImpl implements NoteService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return "images/" + file.getName();
 	}
 
@@ -230,9 +259,9 @@ public class NoteServiceImpl implements NoteService {
 		if (noteExtras == null) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
-		
+
 		noteExtras.setReminder(new Date(time * 1000));
-		
+
 		noteExtrasRepository.save(noteExtras);
 	}
 
@@ -249,9 +278,9 @@ public class NoteServiceImpl implements NoteService {
 		if (noteExtras == null) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
-		
+
 		noteExtras.setReminder(null);
-		
+
 		noteExtrasRepository.save(noteExtras);
 	}
 

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
@@ -39,7 +40,7 @@ public class NoteController {
 	private WebApplicationContext context;
 
 	@PostMapping("/create")
-	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, Principal principal) {
+	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, Principal principal) throws LabelNotFoundException {
 		NoteDto noteDto = noteService.createNote(createNoteDto, Long.parseLong(principal.getName()));
 
 		return new ResponseEntity<>(noteDto, HttpStatus.CREATED);

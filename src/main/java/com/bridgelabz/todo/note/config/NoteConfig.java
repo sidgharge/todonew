@@ -4,10 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.bridgelabz.todo.note.models.LabelDto;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
-import com.bridgelabz.todo.note.repositories.LabelDto;
 
 @Configuration
 public class NoteConfig {

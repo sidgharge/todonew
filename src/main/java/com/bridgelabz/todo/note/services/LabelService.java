@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.bridgelabz.todo.note.exceptions.LabelNameNotUniqueException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
-import com.bridgelabz.todo.note.repositories.LabelDto;
+import com.bridgelabz.todo.note.models.LabelDto;
 
 public interface LabelService {
 	

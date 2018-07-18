@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 
 public interface NoteService {
 
-	NoteDto createNote(CreateNoteDto noteDto, long userId);
+	NoteDto createNote(CreateNoteDto noteDto, long userId) throws LabelNotFoundException;
 
 	void updateNote(UpdateNoteDto noteDto, long userId);
 

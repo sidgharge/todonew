@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class NoteDto {
 
@@ -25,6 +26,8 @@ public class NoteDto {
 	private String color;
 
 	private Date reminder;
+
+	private List<LabelDto> labels;
 
 	public long getId() {
 		return id;
@@ -112,6 +115,14 @@ public class NoteDto {
 
 	public void setReminder(Date reminder) {
 		this.reminder = reminder;
+	}
+
+	public List<LabelDto> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(List<LabelDto> labels) {
+		this.labels = labels;
 	}
 
 }
