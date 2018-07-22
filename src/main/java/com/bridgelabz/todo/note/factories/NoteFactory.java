@@ -25,7 +25,7 @@ public class NoteFactory {
 
 		note.setTitle(noteDto.getTitle());
 		note.setBody(noteDto.getBody());
-		note.setImageUrl(noteDto.getImageUrl());
+		note.setImageUrls(noteDto.getImageUrls());
 
 		NoteExtras extras = context.getBean(NoteExtras.class);
 
@@ -50,7 +50,7 @@ public class NoteFactory {
 		NoteDto noteDto = context.getBean(NoteDto.class);
 
 		noteDto.setId(note.getId());
-		noteDto.setImageUrl(note.getImageUrl());
+		noteDto.setImageUrls(note.getImageUrls());
 		noteDto.setTitle(note.getTitle());
 		noteDto.setBody(note.getBody());
 		noteDto.setCreatedAt(note.getCreatedAt());

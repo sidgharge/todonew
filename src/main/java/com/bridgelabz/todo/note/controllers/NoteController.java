@@ -32,7 +32,7 @@ import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.models.Response;
 
-@CrossOrigin
+//@CrossOrigin
 @RestController
 @RequestMapping("notes")
 public class NoteController {
@@ -133,6 +133,18 @@ public class NoteController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@PutMapping("/color/{id}")
+	public ResponseEntity<Response> archiveUnarchive(@PathVariable("id") long noteId,
+			@RequestParam("color") String color, Principal principal) {
+		noteService.changeColor(noteId, color, Long.parseLong(principal.getName()));
+
+		Response response = context.getBean(Response.class);
+		response.setMessage("Note color changed successfully");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
 	@PostMapping("/image-upload")
 	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image,
 			Principal principal) throws MalformedURLException {
@@ -146,10 +158,11 @@ public class NoteController {
 	}
 
 	@DeleteMapping("/delete-image")
-	public ResponseEntity<Response> deleteImage(@RequestParam("url") String imagename, HttpServletRequest request) throws MalformedURLException, NoteIdRequredException, ImageDeletionException {
+	public ResponseEntity<Response> deleteImage(@RequestParam("url") String imagename, HttpServletRequest request)
+			throws MalformedURLException, NoteIdRequredException, ImageDeletionException {
 
 		noteService.deleteImage(imagename);
-		
+
 		Response response = new Response();
 		response.setMessage("Image successfully deleted");
 		response.setStatus(1);

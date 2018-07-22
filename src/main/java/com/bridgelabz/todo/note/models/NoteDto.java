@@ -13,7 +13,7 @@ public class NoteDto {
 
 	private Date createdAt;
 
-	private String imageUrl;
+	private List<String> imageUrls;
 
 	private Date updatedAt;
 
@@ -69,12 +69,12 @@ public class NoteDto {
 		this.updatedAt = updatedAt;
 	}
 
-	public String getImageUrl() {
-		return imageUrl;
+	public List<String> getImageUrls() {
+		return imageUrls;
 	}
 
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setImageUrls(List<String> imageUrls) {
+		this.imageUrls = imageUrls;
 	}
 
 	public boolean isPinned() {

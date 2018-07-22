@@ -16,12 +16,43 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.bridgelabz.todo.user.filters.LoggingInterceptor;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	@Bean
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addInterceptors(InterceptorRegistry registry) {
+				registry.addInterceptor(new LoggingInterceptor()).addPathPatterns("/**");
+			}
+			
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler("/images/**").addResourceLocations("file:images/");
+				registry.addResourceHandler("swagger-ui.html")
+			      .addResourceLocations("classpath:/META-INF/resources/");
+			 
+			    registry.addResourceHandler("/webjars/**")
+			      .addResourceLocations("classpath:/META-INF/resources/webjars/");
+			}
+			
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**").allowedOrigins("*").allowedHeaders("*").allowedMethods("*");
+			}
+		};
+	}
 	
 	@Bean
 	@Override

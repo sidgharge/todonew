@@ -3,7 +3,7 @@ package com.bridgelabz.todo.note.models;
 public class UpdateNoteDto {
 
 	private long id;
-
+	
 	private String title;
 
 	private String body;

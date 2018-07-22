@@ -13,7 +13,7 @@ public class NotesUtility {
 	public static void validateNote(CreateNoteDto noteDto) {
 		if (noteDto.getTitle() == null || noteDto.getTitle().isEmpty()) {
 			if (noteDto.getBody() == null || noteDto.getBody().isEmpty()) {
-				if (noteDto.getImageUrl() == null || noteDto.getImageUrl().isEmpty()) {
+				if (noteDto.getImageUrls() == null || noteDto.getImageUrls().isEmpty()) {
 					throw new EmptyNoteException("Cannot create empty note");
 				}
 			}

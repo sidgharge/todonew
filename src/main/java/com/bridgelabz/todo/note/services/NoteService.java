@@ -34,4 +34,6 @@ public interface NoteService {
 	void removeReminnder(long noteId, long userId);
 
 	void deleteImage(String imagename) throws NoteIdRequredException, ImageDeletionException;
+
+	void changeColor(long noteId, String color, long userId);
 }

@@ -288,17 +288,36 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public void deleteImage(String imagename) throws NoteIdRequredException, ImageDeletionException {
-		Optional<Note> optionalNote = noteRepository.getByImageUrl(imagename);
-		
-		if (optionalNote.isPresent()) {
-			throw new NoteIdRequredException("Image is attached to a note, please provide note id");
-		}
+//		Optional<Note> optionalNote = noteRepository.getByImageUrl(imagename);
+//		
+//		if (optionalNote.isPresent()) {
+//			throw new NoteIdRequredException("Image is attached to a note, please provide note id");
+//		}
 		
 		File file = new File("images/" + imagename.substring(imagename.lastIndexOf('/') + 1, imagename.length()));
 		
 		if (!file.delete()) {
 			throw new ImageDeletionException("Image could not be deleted");
 		}
+	}
+
+	@Override
+	public void changeColor(long noteId, String color, long userId) {
+		Note note = context.getBean(Note.class);
+		note.setId(noteId);
+
+		User owner = context.getBean(User.class);
+		owner.setId(userId);
+
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+
+		if (noteExtras == null) {
+			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
+		}
+		
+		noteExtras.setColor(color);
+
+		noteExtrasRepository.save(noteExtras);
 	}
 
 }

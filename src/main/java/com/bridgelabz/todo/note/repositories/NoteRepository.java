@@ -12,6 +12,6 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
 	List<Note> findByOwner(User owner);
 
-	Optional<Note> getByImageUrl(String imagename);
+	//Optional<Note> getByImageUrls(String imagename);
 
 }

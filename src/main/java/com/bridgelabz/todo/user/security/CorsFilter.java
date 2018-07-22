@@ -21,30 +21,28 @@ public class CorsFilter implements Filter {
 
 	@Override
 	public void destroy() {
-		
+
 	}
 
 	@Override
 	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2)
 			throws IOException, ServletException {
-		
+
 		HttpServletRequest request = (HttpServletRequest) arg0;
 		HttpServletResponse response = (HttpServletResponse) arg1;
-		
-		if (request.getMethod().equalsIgnoreCase("options")) {
-			response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-			response.setHeader("Access-Control-Allow-Credentials", "true");
-			response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-			response.setHeader("Access-Control-Max-Age", "3600");
-			response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me, Authorization");
-		} else {
+
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
+		response.setHeader("Access-Control-Allow-Headers", "*");
+		if (!request.getMethod().equalsIgnoreCase("options")) {
 			arg2.doFilter(arg0, arg1);
 		}
 	}
 
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
-		
+
 	}
 
 }
