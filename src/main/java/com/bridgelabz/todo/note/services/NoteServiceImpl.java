@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.ImageDeletionException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
+import com.bridgelabz.todo.note.exceptions.NoteIdRequredException;
 import com.bridgelabz.todo.note.exceptions.NoteNotFoundException;
 import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
@@ -282,6 +284,21 @@ public class NoteServiceImpl implements NoteService {
 		noteExtras.setReminder(null);
 
 		noteExtrasRepository.save(noteExtras);
+	}
+
+	@Override
+	public void deleteImage(String imagename) throws NoteIdRequredException, ImageDeletionException {
+		Optional<Note> optionalNote = noteRepository.getByImageUrl(imagename);
+		
+		if (optionalNote.isPresent()) {
+			throw new NoteIdRequredException("Image is attached to a note, please provide note id");
+		}
+		
+		File file = new File("images/" + imagename.substring(imagename.lastIndexOf('/') + 1, imagename.length()));
+		
+		if (!file.delete()) {
+			throw new ImageDeletionException("Image could not be deleted");
+		}
 	}
 
 }

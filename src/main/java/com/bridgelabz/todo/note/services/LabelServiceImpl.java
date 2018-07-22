@@ -13,6 +13,7 @@ import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteNotFoundException;
 import com.bridgelabz.todo.note.exceptions.UnAuthorizedException;
 import com.bridgelabz.todo.note.factories.NoteFactory;
+import com.bridgelabz.todo.note.models.CreateLabelDto;
 import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.models.LabelDto;
 import com.bridgelabz.todo.note.models.Note;
@@ -37,12 +38,18 @@ public class LabelServiceImpl implements LabelService {
 	private NoteExtrasRepository noteExtrasRepository;
 
 	@Override
-	public LabelDto createLabel(String name, long userId) {
-		Label label = new Label();
-		label.setName(name);
-
+	public LabelDto createLabel(CreateLabelDto createLabelDto, long userId) throws LabelNameNotUniqueException {
 		User owner = context.getBean(User.class);
 		owner.setId(userId);
+		
+		Optional<Label> optionalLabel = labelRepository.findByNameAndOwner(createLabelDto.getName(), owner);
+		
+		if(optionalLabel.isPresent()) {
+			throw new LabelNameNotUniqueException(String.format("Label with name '%s' already exists", createLabelDto.getName()));
+		}
+		
+		Label label = new Label();
+		label.setName(createLabelDto.getName());
 
 		label.setOwner(owner);
 
@@ -68,8 +75,8 @@ public class LabelServiceImpl implements LabelService {
 		owner.setId(userId);
 		Optional<Label> oldOptionalLabel = labelRepository.findByNameAndOwner(labelDto.getName(), owner);
 
-		if (oldOptionalLabel.isPresent()) {
-			throw new LabelNameNotUniqueException("Label with name " + labelDto.getName() + " already exists");
+		if(oldOptionalLabel.isPresent()) {
+			throw new LabelNameNotUniqueException(String.format("Label with name '%s' already exists", labelDto.getName()));
 		}
 
 		label.setName(labelDto.getName());

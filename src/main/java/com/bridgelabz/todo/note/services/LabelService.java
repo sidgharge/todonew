@@ -4,11 +4,12 @@ import java.util.List;
 
 import com.bridgelabz.todo.note.exceptions.LabelNameNotUniqueException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
+import com.bridgelabz.todo.note.models.CreateLabelDto;
 import com.bridgelabz.todo.note.models.LabelDto;
 
 public interface LabelService {
 	
-	LabelDto createLabel(String name, long userId);
+	LabelDto createLabel(CreateLabelDto createLabelDto, long userId) throws LabelNameNotUniqueException;
 
 	void updateLabel(LabelDto labelDto, long userId) throws LabelNotFoundException, LabelNameNotUniqueException;
 

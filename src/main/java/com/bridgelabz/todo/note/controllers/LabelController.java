@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +20,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.bridgelabz.todo.note.exceptions.LabelNameNotUniqueException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
+import com.bridgelabz.todo.note.models.CreateLabelDto;
 import com.bridgelabz.todo.note.models.LabelDto;
 import com.bridgelabz.todo.note.services.LabelService;
 import com.bridgelabz.todo.user.models.Response;
+
+@CrossOrigin
 
 @RestController
 @RequestMapping("/labels")
@@ -34,8 +38,8 @@ public class LabelController {
 	private WebApplicationContext context;
 
 	@PostMapping("/create")
-	public ResponseEntity<LabelDto> createLabel(@RequestHeader("name") String name, Principal principal) {
-		LabelDto labelDto = labelService.createLabel(name, Long.parseLong(principal.getName()));
+	public ResponseEntity<LabelDto> createLabel(@RequestBody CreateLabelDto createLabelDto, Principal principal) throws LabelNameNotUniqueException {
+		LabelDto labelDto = labelService.createLabel(createLabelDto, Long.parseLong(principal.getName()));
 		
 		return new ResponseEntity<>(labelDto, HttpStatus.CREATED);
 	}

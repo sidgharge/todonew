@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.ImageDeletionException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
+import com.bridgelabz.todo.note.exceptions.NoteIdRequredException;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
@@ -29,6 +32,7 @@ import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.models.Response;
 
+@CrossOrigin
 @RestController
 @RequestMapping("notes")
 public class NoteController {
@@ -40,7 +44,8 @@ public class NoteController {
 	private WebApplicationContext context;
 
 	@PostMapping("/create")
-	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, Principal principal) throws LabelNotFoundException {
+	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, Principal principal)
+			throws LabelNotFoundException {
 		NoteDto noteDto = noteService.createNote(createNoteDto, Long.parseLong(principal.getName()));
 
 		return new ResponseEntity<>(noteDto, HttpStatus.CREATED);
@@ -104,23 +109,23 @@ public class NoteController {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@PutMapping("/add-reminder/{id}/{date}")
-	public ResponseEntity<Response> addRemoveReminder(@PathVariable("id") long noteId,
-			@PathVariable("date") long time, Principal principal){
+	public ResponseEntity<Response> addRemoveReminder(@PathVariable("id") long noteId, @PathVariable("date") long time,
+			Principal principal) {
 		noteService.addReminder(noteId, time, Long.parseLong(principal.getName()));
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Reminder added successfully");
 		response.setStatus(1);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@DeleteMapping("/remove-reminder/{id}")
 	public ResponseEntity<Response> removeReminder(@PathVariable("id") long noteId, Principal principal) {
 		noteService.removeReminnder(noteId, Long.parseLong(principal.getName()));
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Reminder removed successfully");
 		response.setStatus(1);
@@ -129,21 +134,33 @@ public class NoteController {
 	}
 
 	@PostMapping("/image-upload")
-	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image, Principal principal) throws MalformedURLException {
+	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image,
+			Principal principal) throws MalformedURLException {
 		String link = noteService.saveImage(image, Long.parseLong(principal.getName()));
-		
+
 		Response response = new Response();
 		response.setMessage(NotesUtility.getUrl(request, link));
 		response.setStatus(1);
-		
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
-	 @DeleteMapping("/delete/{id}")
-	 public void deleteNote(@PathVariable("id") long noteId, Principal principal)
-	 {
-	 noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
-	 }
+
+	@DeleteMapping("/delete-image")
+	public ResponseEntity<Response> deleteImage(@RequestParam("url") String imagename, HttpServletRequest request) throws MalformedURLException, NoteIdRequredException, ImageDeletionException {
+
+		noteService.deleteImage(imagename);
+		
+		Response response = new Response();
+		response.setMessage("Image successfully deleted");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/delete/{id}")
+	public void deleteNote(@PathVariable("id") long noteId, Principal principal) {
+		noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
+	}
 
 	@GetMapping("/all")
 	public ResponseEntity<List<NoteDto>> getAllNotes(Principal principal) {
