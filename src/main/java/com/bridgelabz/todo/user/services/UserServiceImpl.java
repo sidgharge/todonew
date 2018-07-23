@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.Email;
@@ -38,6 +40,9 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${registration.template.path}")
 	private String emailTemplatePath;
+	
+	@Autowired
+	private NoteService noteService;;
 
 	@Override
 	public void register(RegistrationDto registrationDto, String url) throws IOException, MessagingException {
@@ -79,6 +84,25 @@ public class UserServiceImpl implements UserService {
 			throw new UserActivationException("Malformed link");
 		}
 
+	}
+
+	@Override
+	public String uploadProfilePicture(MultipartFile image, String url, long userId) {
+		String link = noteService.saveImage(image);
+		link = url + link;
+		
+		Optional<User> optionalUser = userRepository.findById(userId);
+
+//		if (!optionalUser.isPresent()) {
+//			throw new UserActivationException("User does not exist");
+//		}
+
+		User user = optionalUser.get();
+		user.setProfileUrl(link);
+		
+		userRepository.save(user);
+		
+		return link;
 	}
 
 }

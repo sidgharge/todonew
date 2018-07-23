@@ -21,6 +21,8 @@ public class User {
 
 	private String lastname;
 
+	private String profileUrl;
+
 	private String email;
 
 	private String contact;
@@ -30,7 +32,7 @@ public class User {
 	private String role;
 
 	private boolean isActivated;
-	
+
 	public long getId() {
 		return id;
 	}
@@ -53,6 +55,14 @@ public class User {
 
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
+	}
+
+	public String getProfileUrl() {
+		return profileUrl;
+	}
+
+	public void setProfileUrl(String profileUrl) {
+		this.profileUrl = profileUrl;
 	}
 
 	public String getEmail() {
