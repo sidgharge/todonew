@@ -23,6 +23,7 @@ import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
 import com.bridgelabz.todo.user.models.Response;
+import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.services.UserService;
 import com.bridgelabz.todo.user.utils.UserUtility;
 
@@ -68,5 +69,12 @@ public class UserController {
 		response.setStatus(1);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping("/user/profile")
+	public ResponseEntity<UserDto> getUserProfile(Principal principal) {
+		UserDto userDto = userService.getUserProfile(Long.parseLong(principal.getName()));
+		
+		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
 	}
 }

@@ -23,6 +23,8 @@ public class CreateNoteDto {
 
 	private List<Long> labels;
 
+	private List<Long> collbaorators;
+
 	public String getTitle() {
 		return title;
 	}
@@ -93,6 +95,14 @@ public class CreateNoteDto {
 
 	public void setLabels(List<Long> labels) {
 		this.labels = labels;
+	}
+
+	public List<Long> getCollbaorators() {
+		return collbaorators;
+	}
+
+	public void setCollbaorators(List<Long> collbaorators) {
+		this.collbaorators = collbaorators;
 	}
 
 }

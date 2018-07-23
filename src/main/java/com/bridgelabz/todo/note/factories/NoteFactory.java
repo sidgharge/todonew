@@ -10,6 +10,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.models.LabelDto;
@@ -44,6 +45,20 @@ public class NoteFactory {
 		note.setNoteExtras(Arrays.asList(extras));
 
 		return note;
+	}
+	
+	public NoteExtras getDefaultNoteExtrasFromNoteAndUserId(Note note, long userId) {
+		NoteExtras extras = context.getBean(NoteExtras.class);
+
+		extras.setNote(note);
+		extras.setColor("#fff");
+		
+		User user = context.getBean(User.class);
+		user.setId(userId);
+		
+		extras.setOwner(user);
+		
+		return extras;
 	}
 
 	public NoteDto getNoteDtoFromNoteAndExtras(Note note, NoteExtras extras) {

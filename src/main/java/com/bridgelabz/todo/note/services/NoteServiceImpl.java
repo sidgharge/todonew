@@ -92,8 +92,17 @@ public class NoteServiceImpl implements NoteService {
 				}
 			}
 		}
-
+		
 		noteExtrasRepository.save(extras);
+		
+		if (createNoteDto.getCollbaorators() != null) {
+			createNoteDto.getCollbaorators().forEach(id -> {
+				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUserId(note, id);
+				
+				noteExtrasRepository.save(extra);
+			});	
+		}
+
 
 		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
 
@@ -143,18 +152,34 @@ public class NoteServiceImpl implements NoteService {
 		noteRepository.delete(note);
 	}
 
+//	@Override
+//	public List<NoteDto> getAllNotes(long userId) {
+//		User owner = context.getBean(User.class);
+//		owner.setId(userId);
+//
+//		List<Note> notes = noteRepository.findByOwner(owner);
+//
+//		List<NoteDto> noteDtos = new LinkedList<>();
+//		for (Note note : notes) {
+//			NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
+//			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, noteExtras);
+//
+//			noteDtos.add(noteDto);
+//		}
+//
+//		return noteDtos;
+//	}
+	
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
 		User owner = context.getBean(User.class);
 		owner.setId(userId);
-
-		List<Note> notes = noteRepository.findByOwner(owner);
-
+		
+		List<NoteExtras> extras = noteExtrasRepository.findByOwner(owner);
+		
 		List<NoteDto> noteDtos = new LinkedList<>();
-		for (Note note : notes) {
-			NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, noteExtras);
-
+		for (NoteExtras noteExtras : extras) {
+			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
 			noteDtos.add(noteDto);
 		}
 

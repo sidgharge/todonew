@@ -7,6 +7,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.bridgelabz.todo.user.models.Email;
 import com.bridgelabz.todo.user.models.RegistrationDto;
 import com.bridgelabz.todo.user.models.User;
+import com.bridgelabz.todo.user.models.UserDto;
 
 @Component
 public class UserFactory {
@@ -30,5 +31,17 @@ public class UserFactory {
 		email.setText(text);
 		email.setSubject(subject);
 		return email;
+	}
+
+	public UserDto getUserDtoFromUser(User user) {
+		UserDto userDto = context.getBean(UserDto.class);
+		
+		userDto.setId(user.getId());
+		userDto.setEmail(user.getEmail());
+		userDto.setFirstname(user.getFirstname());
+		userDto.setLastname(user.getLastname());
+		userDto.setProfileUrl(user.getProfileUrl());
+		
+		return userDto;
 	}
 }

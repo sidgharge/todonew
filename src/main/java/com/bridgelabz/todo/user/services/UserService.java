@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
+import com.bridgelabz.todo.user.models.UserDto;
 
 public interface UserService {
 
@@ -17,4 +18,6 @@ public interface UserService {
 	void activateUser(String token) throws UserActivationException;
 
 	String uploadProfilePicture(MultipartFile image, String url, long userId);
+
+	UserDto getUserProfile(long id);
 }

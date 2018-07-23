@@ -20,6 +20,7 @@ import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.Email;
 import com.bridgelabz.todo.user.models.RegistrationDto;
 import com.bridgelabz.todo.user.models.User;
+import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserRepository;
 import com.bridgelabz.todo.user.utils.UserUtility;
 
@@ -93,16 +94,23 @@ public class UserServiceImpl implements UserService {
 		
 		Optional<User> optionalUser = userRepository.findById(userId);
 
-//		if (!optionalUser.isPresent()) {
-//			throw new UserActivationException("User does not exist");
-//		}
-
 		User user = optionalUser.get();
 		user.setProfileUrl(link);
 		
 		userRepository.save(user);
 		
 		return link;
+	}
+	
+	@Override
+	public UserDto getUserProfile(long id) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		
+		User user = optionalUser.get();
+
+		UserDto userDto = userFactory.getUserDtoFromUser(user);
+		
+		return userDto;
 	}
 
 }
