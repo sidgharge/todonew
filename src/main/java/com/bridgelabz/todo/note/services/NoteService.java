@@ -27,8 +27,8 @@ public interface NoteService {
 
 	void changeTrashStatus(long noteId, boolean status, long userId);
 
-	String saveImage(MultipartFile image, long userId);
-
+	String saveImage(MultipartFile image);
+	
 	void addReminder(long noteId, long time, long userId);
 
 	void removeReminnder(long noteId, long userId);
@@ -36,4 +36,6 @@ public interface NoteService {
 	void deleteImage(String imagename) throws NoteIdRequredException, ImageDeletionException;
 
 	void changeColor(long noteId, String color, long userId);
+
+	String saveImageToNote(MultipartFile image, long id, String url, long userId);
 }

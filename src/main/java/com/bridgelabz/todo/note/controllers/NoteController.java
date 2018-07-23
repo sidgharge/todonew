@@ -97,7 +97,7 @@ public class NoteController {
 	@PutMapping("/trash-restore/{id}/{status}")
 	public ResponseEntity<Response> trashRestore(@PathVariable("id") long noteId,
 			@PathVariable("status") boolean status, Principal principal) {
-		noteService.changeArchiveStatus(noteId, status, Long.parseLong(principal.getName()));
+		noteService.changeTrashStatus(noteId, status, Long.parseLong(principal.getName()));
 
 		Response response = context.getBean(Response.class);
 		if (status) {
@@ -146,12 +146,23 @@ public class NoteController {
 	}
 
 	@PostMapping("/image-upload")
-	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image,
-			Principal principal) throws MalformedURLException {
-		String link = noteService.saveImage(image, Long.parseLong(principal.getName()));
+	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws MalformedURLException {
+		String link = noteService.saveImage(image);
 
 		Response response = new Response();
 		response.setMessage(NotesUtility.getUrl(request, link));
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping("/image-upload/{id}")
+	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image,
+			@PathVariable("id") long id, Principal principal) throws MalformedURLException {
+		String link = noteService.saveImageToNote(image, id, NotesUtility.getUrl(request, ""), Long.parseLong(principal.getName()));
+
+		Response response = new Response();
+		response.setMessage(link);
 		response.setStatus(1);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);

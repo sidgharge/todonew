@@ -60,7 +60,7 @@ public class NoteFactory {
 		noteDto.setColor(extras.getColor());
 		noteDto.setPinned(extras.isPinned());
 		noteDto.setReminder(extras.getReminder());
-		noteDto.setTrashed(noteDto.isTrashed());
+		noteDto.setTrashed(extras.isTrashed());
 
 		noteDto.setLabels(new LinkedList<>());
 		for (Label label : extras.getLabels()) {

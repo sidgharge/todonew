@@ -114,8 +114,13 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 
-		note.setTitle(noteDto.getTitle());
-		note.setBody(noteDto.getBody());
+		if(noteDto.getTitle() != null) {
+			note.setTitle(noteDto.getTitle());
+		}
+		if(noteDto.getBody() != null) {
+			note.setBody(noteDto.getBody());
+		}
+		
 		note.setUpdatedAt(new Date());
 
 		noteRepository.save(note);
@@ -134,7 +139,7 @@ public class NoteServiceImpl implements NoteService {
 		for (NoteExtras noteExtras : note.getNoteExtras()) {
 			noteExtrasRepository.delete(noteExtras);
 		}
-
+		
 		noteRepository.delete(note);
 	}
 
@@ -226,7 +231,7 @@ public class NoteServiceImpl implements NoteService {
 	}
 
 	@Override
-	public String saveImage(MultipartFile image, long userId) {
+	public String saveImage(MultipartFile image) {
 		String ext = image.getOriginalFilename();
 		ext = ext.substring(ext.lastIndexOf('.'));
 		File file = new File("images/" + UUID.randomUUID().toString() + ext);
@@ -246,6 +251,31 @@ public class NoteServiceImpl implements NoteService {
 		}
 
 		return "images/" + file.getName();
+	}
+
+	@Override
+	public String saveImageToNote(MultipartFile image, long id, String url, long userId) {
+		Optional<Note> optionalNote = noteRepository.findById(id);
+
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Cannot find note with id " + id);
+		}
+
+		Note note = optionalNote.get();
+
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
+		
+		String link = saveImage(image);
+		link = url + link;
+		
+		note.getImageUrls().add(link);
+		note.setUpdatedAt(new Date());
+		
+		noteRepository.save(note);
+		
+		return link;
 	}
 
 	@Override
