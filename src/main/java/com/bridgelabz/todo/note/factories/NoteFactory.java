@@ -10,7 +10,9 @@ import org.springframework.web.context.WebApplicationContext;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.NoteExtras;
+import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
+import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.models.LabelDto;
@@ -20,6 +22,9 @@ public class NoteFactory {
 
 	@Autowired
 	private WebApplicationContext context;
+	
+	@Autowired
+	private UserFactory userFactory;
 
 	public Note getNoteFromCreateNoteDto(CreateNoteDto noteDto) {
 		Note note = context.getBean(Note.class);
@@ -76,7 +81,10 @@ public class NoteFactory {
 		noteDto.setPinned(extras.isPinned());
 		noteDto.setReminder(extras.getReminder());
 		noteDto.setTrashed(extras.isTrashed());
-
+		
+		UserDto owner = userFactory.getUserDtoFromUser(note.getOwner());
+		noteDto.setOwner(owner);
+		
 		noteDto.setLabels(new LinkedList<>());
 		for (Label label : extras.getLabels()) {
 			LabelDto dto = context.getBean(LabelDto.class);

@@ -3,6 +3,8 @@ package com.bridgelabz.todo.note.models;
 import java.util.Date;
 import java.util.List;
 
+import com.bridgelabz.todo.user.models.UserDto;
+
 public class NoteDto {
 
 	private long id;
@@ -28,6 +30,10 @@ public class NoteDto {
 	private Date reminder;
 
 	private List<LabelDto> labels;
+	
+	private UserDto owner;
+	
+	private List<UserDto> collaborators;
 
 	public long getId() {
 		return id;
@@ -123,6 +129,22 @@ public class NoteDto {
 
 	public void setLabels(List<LabelDto> labels) {
 		this.labels = labels;
+	}
+
+	public UserDto getOwner() {
+		return owner;
+	}
+
+	public void setOwner(UserDto owner) {
+		this.owner = owner;
+	}
+
+	public List<UserDto> getCollaborators() {
+		return collaborators;
+	}
+
+	public void setCollaborators(List<UserDto> collaborators) {
+		this.collaborators = collaborators;
 	}
 
 }

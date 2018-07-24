@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,7 +33,9 @@ import com.bridgelabz.todo.note.repositories.LabelRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
+import com.bridgelabz.todo.user.models.UserDto;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -51,6 +54,9 @@ public class NoteServiceImpl implements NoteService {
 
 	@Autowired
 	private LabelRepository labelRepository;
+	
+	@Autowired
+	private UserFactory userFactory;
 
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
@@ -105,6 +111,10 @@ public class NoteServiceImpl implements NoteService {
 
 
 		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
+		
+		UserDto userDto =userFactory.getUserDtoFromUser(owner);
+		
+		noteDto.setOwner(userDto);
 
 		return noteDto;
 	}
@@ -180,6 +190,13 @@ public class NoteServiceImpl implements NoteService {
 		List<NoteDto> noteDtos = new LinkedList<>();
 		for (NoteExtras noteExtras : extras) {
 			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
+			noteDto.setCollaborators(new ArrayList<>());
+			noteExtras.getNote().getNoteExtras().forEach(noteExtra -> {
+				if (noteExtra.getOwner().getId() != noteExtras.getNote().getOwner().getId()) {
+					UserDto userDto = userFactory.getUserDtoFromUser(noteExtra.getOwner());
+					noteDto.getCollaborators().add(userDto);
+				}
+			});
 			noteDtos.add(noteDto);
 		}
 
