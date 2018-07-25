@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.CollaborationException;
 import com.bridgelabz.todo.note.exceptions.ImageDeletionException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteIdRequredException;
@@ -33,9 +34,11 @@ import com.bridgelabz.todo.note.repositories.LabelRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
+import com.bridgelabz.todo.user.repositories.UserRepository;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -57,6 +60,9 @@ public class NoteServiceImpl implements NoteService {
 	
 	@Autowired
 	private UserFactory userFactory;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
@@ -101,8 +107,8 @@ public class NoteServiceImpl implements NoteService {
 		
 		noteExtrasRepository.save(extras);
 		
-		if (createNoteDto.getCollbaorators() != null) {
-			createNoteDto.getCollbaorators().forEach(id -> {
+		if (createNoteDto.getCollaborators() != null) {
+			createNoteDto.getCollaborators().forEach(id -> {
 				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUserId(note, id);
 				
 				noteExtrasRepository.save(extra);
@@ -162,23 +168,6 @@ public class NoteServiceImpl implements NoteService {
 		noteRepository.delete(note);
 	}
 
-//	@Override
-//	public List<NoteDto> getAllNotes(long userId) {
-//		User owner = context.getBean(User.class);
-//		owner.setId(userId);
-//
-//		List<Note> notes = noteRepository.findByOwner(owner);
-//
-//		List<NoteDto> noteDtos = new LinkedList<>();
-//		for (Note note : notes) {
-//			NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-//			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, noteExtras);
-//
-//			noteDtos.add(noteDto);
-//		}
-//
-//		return noteDtos;
-//	}
 	
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
@@ -392,4 +381,37 @@ public class NoteServiceImpl implements NoteService {
 		noteExtrasRepository.save(noteExtras);
 	}
 
+	@Override
+	public UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException {
+		Optional<Note> optionalNote = noteRepository.findById(noteId);
+		
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Note does not exist");
+		}
+		
+		Note note = optionalNote.get();
+		
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
+		
+		Optional<User> optionalUser = userRepository.findByEmail(email);
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException(String.format("User with email '%s' does not exist", email));
+		}
+		
+		User user = optionalUser.get();
+		
+		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, user);
+		if (noteExtras != null) {
+			throw new CollaborationException("User already collaborated");
+		}
+		
+		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUserId(note, user.getId());
+		
+		noteExtrasRepository.save(extra);
+		
+		return userFactory.getUserDtoFromUser(user);
+	}
+	
 }

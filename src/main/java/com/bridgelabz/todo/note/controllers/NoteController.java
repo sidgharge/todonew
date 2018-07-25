@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.CollaborationException;
 import com.bridgelabz.todo.note.exceptions.ImageDeletionException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteIdRequredException;
@@ -30,7 +31,9 @@ import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.Response;
+import com.bridgelabz.todo.user.models.UserDto;
 
 //@CrossOrigin
 @RestController
@@ -182,8 +185,14 @@ public class NoteController {
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public void deleteNote(@PathVariable("id") long noteId, Principal principal) {
+	public ResponseEntity<Response> deleteNote(@PathVariable("id") long noteId, Principal principal) {
 		noteService.deleteNote(noteId, Long.parseLong(principal.getName()));
+		
+		Response response = new Response();
+		response.setMessage("Note successfully deleted");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/all")
@@ -191,5 +200,12 @@ public class NoteController {
 		List<NoteDto> notes = noteService.getAllNotes(Long.parseLong(principal.getName()));
 
 		return new ResponseEntity<>(notes, HttpStatus.OK);
+	}
+	
+	@PostMapping("/collaborate/{noteId}")
+	public ResponseEntity<UserDto> collaborate(@PathVariable long noteId, @RequestParam("email") String email, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException {
+		UserDto userDto = noteService.collaborate(noteId, email, Long.parseLong(principal.getName()));
+		
+		return new ResponseEntity<>(userDto, HttpStatus.OK);
 	}
 }

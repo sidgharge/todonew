@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.note.exceptions.CollaborationException;
 import com.bridgelabz.todo.note.exceptions.ImageDeletionException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
 import com.bridgelabz.todo.note.exceptions.NoteIdRequredException;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.NoteDto;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
+import com.bridgelabz.todo.user.models.UserDto;
 
 public interface NoteService {
 
@@ -38,4 +41,6 @@ public interface NoteService {
 	void changeColor(long noteId, String color, long userId);
 
 	String saveImageToNote(MultipartFile image, long id, String url, long userId);
+
+	UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException;
 }

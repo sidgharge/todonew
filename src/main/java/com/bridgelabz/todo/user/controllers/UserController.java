@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
 import com.bridgelabz.todo.user.models.Response;
 import com.bridgelabz.todo.user.models.UserDto;
@@ -74,6 +75,13 @@ public class UserController {
 	@GetMapping("/user/profile")
 	public ResponseEntity<UserDto> getUserProfile(Principal principal) {
 		UserDto userDto = userService.getUserProfile(Long.parseLong(principal.getName()));
+		
+		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
+	}
+	
+	@GetMapping("/user/profilebyemail")
+	public ResponseEntity<UserDto> getUserProfile(@RequestParam("email") String email) throws UserNotFoundException{
+		UserDto userDto = userService.getUserProfile(email);
 		
 		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
 	}

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.bridgelabz.todo.note.exceptions.CollaborationException;
 import com.bridgelabz.todo.note.exceptions.EmptyNoteException;
 import com.bridgelabz.todo.note.exceptions.LabelNameNotUniqueException;
 import com.bridgelabz.todo.note.exceptions.LabelNotFoundException;
@@ -116,6 +117,19 @@ public class NoteExceptionHandler {
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
 		response.setStatus(-10);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(CollaborationException.class)
+	public ResponseEntity<Response> handleCollaborationException(CollaborationException exception,
+			HttpServletRequest request, @RequestAttribute("reqId") String reqId) {
+		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
+				+ exception.getMessage(), exception);
+
+		Response response = context.getBean(Response.class);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-12);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}

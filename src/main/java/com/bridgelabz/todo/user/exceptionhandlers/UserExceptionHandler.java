@@ -14,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.Response;
 
 @ControllerAdvice
@@ -61,5 +62,18 @@ public class UserExceptionHandler {
 		response.setStatus(-1);
 
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException exception, HttpServletRequest request,
+			@RequestAttribute("reqId") String reqId) {
+		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
+				+ exception.getMessage(), exception);
+
+		Response response = context.getBean(Response.class);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-11);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 }

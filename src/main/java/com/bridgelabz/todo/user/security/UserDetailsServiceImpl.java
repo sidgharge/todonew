@@ -2,6 +2,7 @@ package com.bridgelabz.todo.user.security;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,11 +23,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userReposiroty.findByEmail(username);
+		Optional<User> optionalUser = userReposiroty.findByEmail(username);
 		
-		if (user == null) {
+		if (!optionalUser.isPresent()) {
 			throw new BadCredentialsException("Email id or password is incorrect");
 		}
+		
+		User user = optionalUser.get();
 		
 		if(!user.isActivated()) {
 			throw new BadCredentialsException("Email id not verified");

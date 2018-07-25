@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.services.NoteService;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
+import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.Email;
 import com.bridgelabz.todo.user.models.RegistrationDto;
@@ -105,6 +106,21 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto getUserProfile(long id) {
 		Optional<User> optionalUser = userRepository.findById(id);
+		
+		User user = optionalUser.get();
+
+		UserDto userDto = userFactory.getUserDtoFromUser(user);
+		
+		return userDto;
+	}
+	
+	@Override
+	public UserDto getUserProfile(String email) throws UserNotFoundException {
+		Optional<User> optionalUser = userRepository.findByEmail(email);
+		
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException(String.format("User with email id '%s' does not exist", email));
+		}
 		
 		User user = optionalUser.get();
 

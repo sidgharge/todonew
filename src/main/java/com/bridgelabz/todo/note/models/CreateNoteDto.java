@@ -23,7 +23,7 @@ public class CreateNoteDto {
 
 	private List<Long> labels;
 
-	private List<Long> collbaorators;
+	private List<Long> collaborators;
 
 	public String getTitle() {
 		return title;
@@ -97,12 +97,12 @@ public class CreateNoteDto {
 		this.labels = labels;
 	}
 
-	public List<Long> getCollbaorators() {
-		return collbaorators;
+	public List<Long> getCollaborators() {
+		return collaborators;
 	}
 
-	public void setCollbaorators(List<Long> collbaorators) {
-		this.collbaorators = collbaorators;
+	public void setCollaborators(List<Long> collaborators) {
+		this.collaborators = collaborators;
 	}
 
 }
