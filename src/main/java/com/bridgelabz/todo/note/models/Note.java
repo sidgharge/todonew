@@ -43,7 +43,7 @@ public class Note {
 
 	@OneToMany(mappedBy = "note")
 	private List<NoteExtras> noteExtras;
-
+	
 	public long getId() {
 		return id;
 	}

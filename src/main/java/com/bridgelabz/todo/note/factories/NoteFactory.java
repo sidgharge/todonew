@@ -52,14 +52,11 @@ public class NoteFactory {
 		return note;
 	}
 	
-	public NoteExtras getDefaultNoteExtrasFromNoteAndUserId(Note note, long userId) {
+	public NoteExtras getDefaultNoteExtrasFromNoteAndUser(Note note, User user) {
 		NoteExtras extras = context.getBean(NoteExtras.class);
 
 		extras.setNote(note);
 		extras.setColor("#fff");
-		
-		User user = context.getBean(User.class);
-		user.setId(userId);
 		
 		extras.setOwner(user);
 		

@@ -1,7 +1,9 @@
 package com.bridgelabz.todo.user.utils;
 
+import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
+import com.bridgelabz.todo.user.models.ResetPasswordDto;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,6 +39,16 @@ public class UserUtility {
 		if (registrationDto.getConfirmPassword() == null
 				|| !registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
 			throw new RegistrationException("Password and confirm password should match");
+		}
+	}
+	
+	public static void validateResetPasswordDto(ResetPasswordDto resetPasswordDto) throws InvalidPasswordException {
+		if(resetPasswordDto.getPassword() == null || !resetPasswordDto.getPassword().equals(resetPasswordDto.getConfirmPassword())) {
+			throw new InvalidPasswordException("Both the passwords do not match");
+		}
+		
+		if (resetPasswordDto.getPassword().length() < 8) {
+			throw new InvalidPasswordException("Password should have at least 8 characters");
 		}
 	}
 

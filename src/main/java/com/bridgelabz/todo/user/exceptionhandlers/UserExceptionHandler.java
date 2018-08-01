@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
+import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.Response;
@@ -73,6 +75,32 @@ public class UserExceptionHandler {
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
 		response.setStatus(-11);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(TokenMalformedException.class)
+	public ResponseEntity<?> handleTokenMalformedException(TokenMalformedException exception, HttpServletRequest request,
+			@RequestAttribute("reqId") String reqId) {
+		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
+				+ exception.getMessage(), exception);
+
+		Response response = context.getBean(Response.class);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-12);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(InvalidPasswordException.class)
+	public ResponseEntity<?> handleInvalidPasswordException(InvalidPasswordException exception, HttpServletRequest request,
+			@RequestAttribute("reqId") String reqId) {
+		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
+				+ exception.getMessage(), exception);
+
+		Response response = context.getBean(Response.class);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-13);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}

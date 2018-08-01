@@ -74,8 +74,7 @@ public class NoteServiceImpl implements NoteService {
 		note.setCreatedAt(createdAt);
 		note.setUpdatedAt(createdAt);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
+		User owner = userRepository.findById(userId).get();
 
 		note.setOwner(owner);
 		NoteExtras extras = note.getNoteExtras().get(0);
@@ -88,16 +87,7 @@ public class NoteServiceImpl implements NoteService {
 			for (long labelId : createNoteDto.getLabels()) {
 				Optional<Label> optionalLabel = labelRepository.findById(labelId);
 
-				// if (!optionalLabel.isPresent()) {
-				// throw new LabelNotFoundException("Label with id " + labelId + " does not
-				// exist");
-				// }
-
 				Label label = optionalLabel.get();
-
-				// if (label.getOwner().getId() != userId) {
-				// throw new UnAuthorizedException("User does not own the label");
-				// }
 
 				if (label.getOwner().getId() == userId) {
 					extras.getLabels().add(label);
@@ -106,12 +96,18 @@ public class NoteServiceImpl implements NoteService {
 		}
 		
 		noteExtrasRepository.save(extras);
+
+		List<UserDto> collaborators = new LinkedList<>();
 		
 		if (createNoteDto.getCollaborators() != null) {
 			createNoteDto.getCollaborators().forEach(id -> {
-				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUserId(note, id);
+				User user = userRepository.findById(id).get();
+				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 				
 				noteExtrasRepository.save(extra);
+				
+				UserDto dto = userFactory.getUserDtoFromUser(user);
+				collaborators.add(dto);
 			});	
 		}
 
@@ -121,6 +117,7 @@ public class NoteServiceImpl implements NoteService {
 		UserDto userDto =userFactory.getUserDtoFromUser(owner);
 		
 		noteDto.setOwner(userDto);
+		noteDto.setCollaborators(collaborators);
 
 		return noteDto;
 	}
@@ -407,7 +404,7 @@ public class NoteServiceImpl implements NoteService {
 			throw new CollaborationException("User already collaborated");
 		}
 		
-		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUserId(note, user.getId());
+		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 		
 		noteExtrasRepository.save(extra);
 		

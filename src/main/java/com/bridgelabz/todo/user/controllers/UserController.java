@@ -13,16 +13,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
+import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.RegistrationDto;
+import com.bridgelabz.todo.user.models.ResetPasswordDto;
 import com.bridgelabz.todo.user.models.Response;
 import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.services.UserService;
@@ -65,7 +70,7 @@ public class UserController {
 	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image, Principal principal) throws MalformedURLException {
 		String link = userService.uploadProfilePicture(image, NotesUtility.getUrl(request, ""), Long.parseLong(principal.getName()));
 
-		Response response = new Response();
+		Response response = context.getBean(Response.class);
 		response.setMessage(link);
 		response.setStatus(1);
 
@@ -84,5 +89,27 @@ public class UserController {
 		UserDto userDto = userService.getUserProfile(email);
 		
 		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
+	}
+	
+	@PostMapping("/send-reset-link")
+	public ResponseEntity<Response> sendResetLink(@RequestParam("email") String email, @RequestHeader("origin") String url) throws UserNotFoundException, MessagingException, IOException {
+		userService.sendResetLink(email, url);
+		
+		Response response = context.getBean(Response.class);
+		response.setMessage("Activation link sent succefully");
+		response.setStatus(1);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PutMapping("/reset-password")
+	public ResponseEntity<Response> resetPassword(@RequestHeader("token") String token, @RequestBody ResetPasswordDto resetPassword) throws TokenMalformedException, InvalidPasswordException {
+		userService.resetPassword(token, resetPassword);
+		
+		Response response = context.getBean(Response.class);
+		response.setMessage("Password reseted succefully");
+		response.setStatus(1);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }
