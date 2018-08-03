@@ -137,10 +137,10 @@ public class NoteServiceImpl implements NoteService {
 		}
 
 		if(noteDto.getTitle() != null) {
-			note.setTitle(noteDto.getTitle());
+			note.setTitle(noteDto.getTitle().trim());
 		}
 		if(noteDto.getBody() != null) {
-			note.setBody(noteDto.getBody());
+			note.setBody(noteDto.getBody().trim());
 		}
 		
 		note.setUpdatedAt(new Date());

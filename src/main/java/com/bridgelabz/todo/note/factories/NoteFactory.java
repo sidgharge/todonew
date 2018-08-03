@@ -29,8 +29,8 @@ public class NoteFactory {
 	public Note getNoteFromCreateNoteDto(CreateNoteDto noteDto) {
 		Note note = context.getBean(Note.class);
 
-		note.setTitle(noteDto.getTitle());
-		note.setBody(noteDto.getBody());
+		note.setTitle(noteDto.getTitle().trim());
+		note.setBody(noteDto.getBody().trim());
 		note.setImageUrls(noteDto.getImageUrls());
 
 		NoteExtras extras = context.getBean(NoteExtras.class);
