@@ -7,6 +7,7 @@ import javax.mail.MessagingException;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.todo.user.exceptions.EmailAlreadyRegisteredException;
 import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
@@ -18,7 +19,7 @@ import com.bridgelabz.todo.user.models.UserDto;
 
 public interface UserService {
 
-	void register(RegistrationDto registrationDto, String url) throws RegistrationException, MessagingException, IOException;
+	void register(RegistrationDto registrationDto, String url) throws RegistrationException, MessagingException, IOException, EmailAlreadyRegisteredException;
 
 	void activateUser(String token) throws UserActivationException;
 

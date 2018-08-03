@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.bridgelabz.todo.user.exceptions.EmailAlreadyRegisteredException;
 import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
 import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
@@ -101,6 +102,19 @@ public class UserExceptionHandler {
 		Response response = context.getBean(Response.class);
 		response.setMessage(exception.getMessage());
 		response.setStatus(-13);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(EmailAlreadyRegisteredException.class)
+	public ResponseEntity<?> handleEmailAlreadyRegisteredException(EmailAlreadyRegisteredException exception, HttpServletRequest request,
+			@RequestAttribute("reqId") String reqId) {
+		logger.info("Error occured for " + request.getRequestURI() + " with request id: " + reqId + ": "
+				+ exception.getMessage(), exception);
+
+		Response response = context.getBean(Response.class);
+		response.setMessage(exception.getMessage());
+		response.setStatus(-14);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}

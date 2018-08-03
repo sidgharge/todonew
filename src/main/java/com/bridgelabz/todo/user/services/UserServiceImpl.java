@@ -18,6 +18,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.services.NoteService;
+import com.bridgelabz.todo.user.exceptions.EmailAlreadyRegisteredException;
 import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
 import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
@@ -60,8 +61,14 @@ public class UserServiceImpl implements UserService {
 	private UserRedisRepository userRedisRepository;
 
 	@Override
-	public void register(RegistrationDto registrationDto, String url) throws IOException, MessagingException {
+	public void register(RegistrationDto registrationDto, String url) throws IOException, MessagingException, EmailAlreadyRegisteredException {
 		UserUtility.validateUser(registrationDto);
+		
+		Optional<User> optionalUser = userRepository.findByEmail(registrationDto.getEmail());
+		
+		if(optionalUser.isPresent()) {
+			throw new EmailAlreadyRegisteredException("Email id already registered");
+		}
 
 		User user = userFactory.getUserFromRegistrationDto(registrationDto);
 		user.setActivated(false);

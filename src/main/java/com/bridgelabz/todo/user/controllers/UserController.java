@@ -22,7 +22,9 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.utils.NotesUtility;
+import com.bridgelabz.todo.user.exceptions.EmailAlreadyRegisteredException;
 import com.bridgelabz.todo.user.exceptions.InvalidPasswordException;
+import com.bridgelabz.todo.user.exceptions.RegistrationException;
 import com.bridgelabz.todo.user.exceptions.TokenMalformedException;
 import com.bridgelabz.todo.user.exceptions.UserActivationException;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
@@ -43,7 +45,7 @@ public class UserController {
 	private WebApplicationContext context;
 	
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request) throws MessagingException, IOException {
+	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request) throws MessagingException, IOException, RegistrationException, EmailAlreadyRegisteredException {
 		
 		String url = UserUtility.getRequestUrl(request);
 		userService.register(registrationDto, url);
