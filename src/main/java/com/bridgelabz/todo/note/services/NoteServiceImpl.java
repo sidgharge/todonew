@@ -132,7 +132,7 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public void updateNote(UpdateNoteDto noteDto, long userId) {
-		Optional<Note> optionalNote = noteRepository.findById(noteDto.getId());
+		Optional<Note> optionalNote = noteTemplateRepository.findById(noteDto.getId());
 
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Cannot find note with id " + noteDto.getId());
@@ -153,27 +153,31 @@ public class NoteServiceImpl implements NoteService {
 		
 		note.setUpdatedAt(new Date());
 
-		noteRepository.save(note);
+		noteTemplateRepository.save(note);
 	}
 
+	// TODO - Delete note extars
 	@Override
 	public void deleteNote(long noteId, long userId) {
-		Optional<Note> optionalNote = noteRepository.findById(noteId);
+		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
 
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Cannot find note with id " + noteId);
 		}
-
-		Note note = optionalNote.get();
-
-		for (NoteExtras noteExtras : note.getNoteExtras()) {
-			noteExtrasRepository.delete(noteExtras);
-		}
 		
-		noteRepository.delete(note);
+		Note note = optionalNote.get();
+		
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
+
+		// noteExtrasRepository.deleteAll(note.getNoteExtras());
+		
+		noteTemplateRepository.delete(note);
 	}
 
 	
+	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
 		User owner = context.getBean(User.class);
@@ -291,7 +295,7 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public String saveImageToNote(MultipartFile image, long id, String url, long userId) {
-		Optional<Note> optionalNote = noteRepository.findById(id);
+		Optional<Note> optionalNote = noteTemplateRepository.findById(id);
 
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Cannot find note with id " + id);
@@ -306,10 +310,12 @@ public class NoteServiceImpl implements NoteService {
 		String link = saveImage(image);
 		link = url + link;
 		
-		note.getImageUrls().add(link);
+		// note.getImageUrls().add(link);
 		note.setUpdatedAt(new Date());
 		
-		noteRepository.save(note);
+		// noteRepository.save(note);
+		noteTemplateRepository.save(note);
+		noteTemplateRepository.addImage(note.getId(), link);
 		
 		return link;
 	}
@@ -388,7 +394,7 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException {
-		Optional<Note> optionalNote = noteRepository.findById(noteId);
+		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
 		
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Note does not exist");

@@ -9,5 +9,7 @@ public interface NoteQueries {
 	String INSERT_IMAGE_URL = "INSERT INTO note_image_urls (note_id, image_urls) VALUES (:note_id, :image_urls)";
 
 	String FETCH_BY_ID = "SELECT * FROM note WHERE id = :id";
+	
+	String DELETE_BY_ID = "DELETE FROM note WHERE id = :id";
 
 }

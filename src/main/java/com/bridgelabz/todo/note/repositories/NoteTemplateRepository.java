@@ -2,6 +2,7 @@ package com.bridgelabz.todo.note.repositories;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 
@@ -17,13 +18,17 @@ import org.springframework.stereotype.Repository;
 
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.user.models.User;
-import com.bridgelabz.todo.user.repositories.UserQueries;
 
 @Repository
 public class NoteTemplateRepository {
 	
 	@Autowired
 	private NamedParameterJdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private NoteMapper noteMapper;
+	
+	
 
 	public Note save(Note note) {
 		KeyHolder holder = new GeneratedKeyHolder();
@@ -43,11 +48,7 @@ public class NoteTemplateRepository {
 			note.setId(holder.getKey().longValue());
 			
 			for (String imageUrl : note.getImageUrls()) {
-				MapSqlParameterSource imageParamMap = new MapSqlParameterSource();
-				imageParamMap.addValue("note_id", note.getId());
-				imageParamMap.addValue("image_urls", imageUrl);
-				
-				jdbcTemplate.update(NoteQueries.INSERT_IMAGE_URL, imageParamMap);
+				addImage(note.getId(), imageUrl);
 			}
 		} else {
 			paramMap.addValue("id", note.getId());
@@ -57,7 +58,27 @@ public class NoteTemplateRepository {
 		return note;
 	}
 	
-	public Note findById(long id) {
+	public void addImage(long noteId, String imageUrl) {
+		MapSqlParameterSource imageParamMap = new MapSqlParameterSource();
+		imageParamMap.addValue("note_id", noteId);
+		imageParamMap.addValue("image_urls", imageUrl);
+		
+		jdbcTemplate.update(NoteQueries.INSERT_IMAGE_URL, imageParamMap);
+	}
+	
+	public void delete(Note note) {
+		deleteById(note.getId());
+	}
+	
+	public void deleteById(long id) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("id", id);
+		
+		jdbcTemplate.update(NoteQueries.DELETE_BY_ID, paramMap);
+	}
+	
+	
+	public Optional<Note> findById(long id) {
 		MapSqlParameterSource paramMap = new MapSqlParameterSource();
 		paramMap.addValue("id", id);
 
@@ -65,13 +86,13 @@ public class NoteTemplateRepository {
 	}
 	
 	private Optional<Note> queryForObject(String sql, MapSqlParameterSource paramMap) {
-		User user = null;
+		Note note = null;
 		try {
-			user = jdbcTemplate.queryForObject(sql, paramMap, userMapper);
+			note = jdbcTemplate.queryForObject(sql, paramMap, noteMapper);
 		} catch (EmptyResultDataAccessException e) {
 
 		}
-		return Optional.ofNullable(user);
+		return Optional.ofNullable(note);
 	}
 }
 
@@ -80,13 +101,20 @@ class NoteMapper implements RowMapper<Note> {
 
 	@Override
 	public Note mapRow(ResultSet rs, int rowNum) throws SQLException {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
 		Note note = new Note();
 		
 		note.setId(rs.getInt("id"));
 		note.setTitle(rs.getString("title"));
 		note.setBody(rs.getString("body"));
-		note.setCreatedAt(rs.getDate("created_at"));
-		note.setUpdatedAt(rs.getDate("updated_at"));
+		
+		try {
+			note.setCreatedAt(dateFormat.parse(rs.getString("created_at")));
+			note.setUpdatedAt(dateFormat.parse(rs.getString("updated_at")));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		User owner = new User();
 		owner.setId(rs.getInt("owner_id"));
