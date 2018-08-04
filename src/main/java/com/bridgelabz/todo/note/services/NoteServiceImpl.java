@@ -33,12 +33,14 @@ import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.repositories.LabelRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
+import com.bridgelabz.todo.note.repositories.NoteTemplateRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserRepository;
+import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -63,7 +65,13 @@ public class NoteServiceImpl implements NoteService {
 	
 	@Autowired
 	private UserRepository userRepository;
-
+	
+	@Autowired
+	private UserTemplateRepository userTemplateRepository;
+	
+	@Autowired
+	private NoteTemplateRepository noteTemplateRepository;
+	
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
 		NotesUtility.validateNote(createNoteDto);
@@ -74,13 +82,13 @@ public class NoteServiceImpl implements NoteService {
 		note.setCreatedAt(createdAt);
 		note.setUpdatedAt(createdAt);
 
-		User owner = userRepository.findById(userId).get();
+		User owner = userTemplateRepository.findById(userId).get();
 
 		note.setOwner(owner);
 		NoteExtras extras = note.getNoteExtras().get(0);
 		extras.setOwner(owner);
 
-		noteRepository.save(note);
+		noteTemplateRepository.save(note);
 
 		extras.setLabels(new HashSet<>());
 		if (createNoteDto.getLabels() != null) {
@@ -101,7 +109,7 @@ public class NoteServiceImpl implements NoteService {
 		
 		if (createNoteDto.getCollaborators() != null) {
 			createNoteDto.getCollaborators().forEach(id -> {
-				User user = userRepository.findById(id).get();
+				User user = userTemplateRepository.findById(id).get();
 				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 				
 				noteExtrasRepository.save(extra);
@@ -392,7 +400,7 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 		
-		Optional<User> optionalUser = userRepository.findByEmail(email);
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(email);
 		if (!optionalUser.isPresent()) {
 			throw new UserNotFoundException(String.format("User with email '%s' does not exist", email));
 		}

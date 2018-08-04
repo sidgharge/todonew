@@ -29,6 +29,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -39,13 +51,6 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.springframework.security.oauth/spring-security-oauth2 -->
-		<!-- <dependency> <groupId>org.springframework.security.oauth</groupId> 
-			<artifactId>spring-security-oauth2</artifactId> <version>2.2.0.RELEASE</version> 
-			</dependency> https://mvnrepository.com/artifact/org.springframework.security/spring-security-jwt 
-			<dependency> <groupId>org.springframework.security</groupId> <artifactId>spring-security-jwt</artifactId> 
-			<version>1.0.9.RELEASE</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -103,7 +108,7 @@
 			<type>jar</type>
 		</dependency>
 
-	
+
 	</dependencies>
 
 	<build>

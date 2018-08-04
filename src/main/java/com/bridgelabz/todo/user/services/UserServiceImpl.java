@@ -31,6 +31,7 @@ import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserRedisRepository;
 import com.bridgelabz.todo.user.repositories.UserRepository;
+import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 import com.bridgelabz.todo.user.utils.UserUtility;
 
 @Service
@@ -59,12 +60,15 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserRedisRepository userRedisRepository;
+	
+	@Autowired
+	private UserTemplateRepository userTemplateRepository;
 
 	@Override
 	public void register(RegistrationDto registrationDto, String url) throws IOException, MessagingException, EmailAlreadyRegisteredException {
 		UserUtility.validateUser(registrationDto);
 		
-		Optional<User> optionalUser = userRepository.findByEmail(registrationDto.getEmail());
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(registrationDto.getEmail());
 		
 		if(optionalUser.isPresent()) {
 			throw new EmailAlreadyRegisteredException("Email id already registered");
@@ -75,7 +79,7 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setRole("USER");
 
-		userRepository.save(user);
+		userTemplateRepository.save(user);
 
 		File mailFile = ResourceUtils.getFile(emailTemplatePath);
 		String mailText = new String(Files.readAllBytes(mailFile.toPath()));
@@ -92,7 +96,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			long userId = UserUtility.verify(token);
 
-			Optional<User> optionalUser = userRepository.findById(userId);
+			Optional<User> optionalUser = userTemplateRepository.findById(userId);
 
 			if (!optionalUser.isPresent()) {
 				throw new UserActivationException("User does not exist");
@@ -101,7 +105,7 @@ public class UserServiceImpl implements UserService {
 			User user = optionalUser.get();
 			user.setActivated(true);
 
-			userRepository.save(user);
+			userTemplateRepository.save(user);
 		} catch (Exception e) {
 			throw new UserActivationException("Malformed link");
 		}
@@ -113,19 +117,19 @@ public class UserServiceImpl implements UserService {
 		String link = noteService.saveImage(image);
 		link = url + link;
 		
-		Optional<User> optionalUser = userRepository.findById(userId);
+		Optional<User> optionalUser = userTemplateRepository.findById(userId);
 
 		User user = optionalUser.get();
 		user.setProfileUrl(link);
 		
-		userRepository.save(user);
+		userTemplateRepository.save(user);
 		
 		return link;
 	}
 	
 	@Override
 	public UserDto getUserProfile(long id) {
-		Optional<User> optionalUser = userRepository.findById(id);
+		Optional<User> optionalUser = userTemplateRepository.findById(id);
 		
 		User user = optionalUser.get();
 
@@ -136,7 +140,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public UserDto getUserProfile(String email) throws UserNotFoundException {
-		Optional<User> optionalUser = userRepository.findByEmail(email);
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(email);
 		
 		if (!optionalUser.isPresent()) {
 			throw new UserNotFoundException(String.format("User with email id '%s' does not exist", email));
@@ -151,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void sendResetLink(String emailId, String url) throws UserNotFoundException, MessagingException, IOException {
-		Optional<User> optionalUser = userRepository.findByEmail(emailId);
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(emailId);
 		
 		if (!optionalUser.isPresent()) {
 			throw new UserNotFoundException(String.format("User with email id '%s' does not exist", emailId));
@@ -182,10 +186,10 @@ public class UserServiceImpl implements UserService {
 			throw new TokenMalformedException("Invalid reset link");
 		}
 		
-		User user = userRepository.findById(Long.valueOf(userId)).get();
+		User user = userTemplateRepository.findById(Long.valueOf(userId)).get();
 		user.setPassword(passwordEncoder.encode(resetPasswordDto.getPassword()));
 		
-		userRepository.save(user);
+		userTemplateRepository.save(user);
 		
 		userRedisRepository.delete(token);
 	}
