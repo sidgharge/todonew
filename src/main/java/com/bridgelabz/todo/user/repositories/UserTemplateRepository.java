@@ -26,8 +26,6 @@ public class UserTemplateRepository {
 	private UserMapper userMapper;
 
 	public User save(User user) {
-		KeyHolder holder = new GeneratedKeyHolder();
-
 		MapSqlParameterSource paramMap = new MapSqlParameterSource();
 		paramMap.addValue("firstname", user.getFirstname());
 		paramMap.addValue("lastname", user.getLastname());
@@ -39,6 +37,8 @@ public class UserTemplateRepository {
 		paramMap.addValue("profile_url", user.getProfileUrl());
 
 		if(user.getId() == 0) {
+			KeyHolder holder = new GeneratedKeyHolder();
+			
 			jdbcTemplate.update(UserQueries.INSERT, paramMap, holder);
 
 			user.setId(holder.getKey().longValue());

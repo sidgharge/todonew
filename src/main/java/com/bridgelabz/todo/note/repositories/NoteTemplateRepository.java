@@ -31,8 +31,6 @@ public class NoteTemplateRepository {
 	
 
 	public Note save(Note note) {
-		KeyHolder holder = new GeneratedKeyHolder();
-
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		MapSqlParameterSource paramMap = new MapSqlParameterSource();
@@ -43,6 +41,8 @@ public class NoteTemplateRepository {
 		paramMap.addValue("owner_id", note.getOwner().getId());
 
 		if(note.getId() == 0) {
+			KeyHolder holder = new GeneratedKeyHolder();
+			
 			jdbcTemplate.update(NoteQueries.INSERT, paramMap, holder);
 
 			note.setId(holder.getKey().longValue());

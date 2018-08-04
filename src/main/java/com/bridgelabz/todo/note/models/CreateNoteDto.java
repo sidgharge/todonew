@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CreateNoteDto {
@@ -9,7 +10,7 @@ public class CreateNoteDto {
 
 	private String body;
 
-	private List<String> imageUrls;
+	private List<String> imageUrls = new LinkedList<>();
 
 	private boolean isPinned;
 
@@ -21,9 +22,9 @@ public class CreateNoteDto {
 
 	private Date reminder;
 
-	private List<Long> labels;
+	private List<Long> labels = new LinkedList<>();
 
-	private List<Long> collaborators;
+	private List<Long> collaborators = new LinkedList<>();
 
 	public String getTitle() {
 		return title;

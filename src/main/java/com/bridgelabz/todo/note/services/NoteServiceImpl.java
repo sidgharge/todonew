@@ -32,6 +32,7 @@ import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.repositories.LabelRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
+import com.bridgelabz.todo.note.repositories.NoteExtrasTemplateRepository;
 import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.repositories.NoteTemplateRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
@@ -49,9 +50,6 @@ public class NoteServiceImpl implements NoteService {
 	private NoteFactory noteFactory;
 
 	@Autowired
-	private NoteRepository noteRepository;
-
-	@Autowired
 	private WebApplicationContext context;
 
 	@Autowired
@@ -59,19 +57,20 @@ public class NoteServiceImpl implements NoteService {
 
 	@Autowired
 	private LabelRepository labelRepository;
-	
+
 	@Autowired
 	private UserFactory userFactory;
-	
-	@Autowired
-	private UserRepository userRepository;
-	
+
 	@Autowired
 	private UserTemplateRepository userTemplateRepository;
-	
+
 	@Autowired
 	private NoteTemplateRepository noteTemplateRepository;
-	
+
+	@Autowired
+	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
+
+	// TODO - Label part not working
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
 		NotesUtility.validateNote(createNoteDto);
@@ -90,40 +89,36 @@ public class NoteServiceImpl implements NoteService {
 
 		noteTemplateRepository.save(note);
 
-		extras.setLabels(new HashSet<>());
-		if (createNoteDto.getLabels() != null) {
-			for (long labelId : createNoteDto.getLabels()) {
-				Optional<Label> optionalLabel = labelRepository.findById(labelId);
+		for (long labelId : createNoteDto.getLabels()) {
+			Optional<Label> optionalLabel = labelRepository.findById(labelId);
 
-				Label label = optionalLabel.get();
+			Label label = optionalLabel.get();
 
-				if (label.getOwner().getId() == userId) {
-					extras.getLabels().add(label);
-				}
+			if (label.getOwner().getId() == userId) {
+				extras.getLabels().add(label);
 			}
 		}
-		
-		noteExtrasRepository.save(extras);
+
+		noteExtrasTemplateRepository.save(extras);
 
 		List<UserDto> collaborators = new LinkedList<>();
-		
+
 		if (createNoteDto.getCollaborators() != null) {
 			createNoteDto.getCollaborators().forEach(id -> {
 				User user = userTemplateRepository.findById(id).get();
 				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
-				
-				noteExtrasRepository.save(extra);
-				
+
+				noteExtrasTemplateRepository.save(extra);
+
 				UserDto dto = userFactory.getUserDtoFromUser(user);
 				collaborators.add(dto);
-			});	
+			});
 		}
 
-
 		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
-		
-		UserDto userDto =userFactory.getUserDtoFromUser(owner);
-		
+
+		UserDto userDto = userFactory.getUserDtoFromUser(owner);
+
 		noteDto.setOwner(userDto);
 		noteDto.setCollaborators(collaborators);
 
@@ -144,19 +139,18 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 
-		if(noteDto.getTitle() != null) {
+		if (noteDto.getTitle() != null) {
 			note.setTitle(noteDto.getTitle().trim());
 		}
-		if(noteDto.getBody() != null) {
+		if (noteDto.getBody() != null) {
 			note.setBody(noteDto.getBody().trim());
 		}
-		
+
 		note.setUpdatedAt(new Date());
 
 		noteTemplateRepository.save(note);
 	}
 
-	// TODO - Delete note extars
 	@Override
 	public void deleteNote(long noteId, long userId) {
 		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
@@ -164,27 +158,26 @@ public class NoteServiceImpl implements NoteService {
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Cannot find note with id " + noteId);
 		}
-		
+
 		Note note = optionalNote.get();
-		
+
 		if (note.getOwner().getId() != userId) {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 
-		// noteExtrasRepository.deleteAll(note.getNoteExtras());
-		
+		noteExtrasTemplateRepository.deleteAllByNote(note);
+
 		noteTemplateRepository.delete(note);
 	}
 
-	
 	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
 		User owner = context.getBean(User.class);
 		owner.setId(userId);
-		
+
 		List<NoteExtras> extras = noteExtrasRepository.findByOwner(owner);
-		
+
 		List<NoteDto> noteDtos = new LinkedList<>();
 		for (NoteExtras noteExtras : extras) {
 			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
@@ -203,17 +196,14 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public void changePinStatus(long noteId, boolean status, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
+
+		NoteExtras noteExtras = optionalNoteExtras.get();
 
 		if (status) {
 			noteExtras.setArchived(false);
@@ -221,22 +211,18 @@ public class NoteServiceImpl implements NoteService {
 
 		noteExtras.setPinned(status);
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
 	public void changeArchiveStatus(long noteId, boolean status, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
+
+		NoteExtras noteExtras = optionalNoteExtras.get();
 
 		if (status) {
 			noteExtras.setPinned(false);
@@ -244,22 +230,18 @@ public class NoteServiceImpl implements NoteService {
 
 		noteExtras.setArchived(status);
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
 	public void changeTrashStatus(long noteId, boolean status, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
+
+		NoteExtras noteExtras = optionalNoteExtras.get();
 
 		if (status) {
 			noteExtras.setPinned(false);
@@ -267,7 +249,7 @@ public class NoteServiceImpl implements NoteService {
 
 		noteExtras.setTrashed(status);
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
@@ -306,68 +288,61 @@ public class NoteServiceImpl implements NoteService {
 		if (note.getOwner().getId() != userId) {
 			throw new UnAuthorizedException("User does not own the note");
 		}
-		
+
 		String link = saveImage(image);
 		link = url + link;
-		
+
 		// note.getImageUrls().add(link);
 		note.setUpdatedAt(new Date());
-		
+
 		// noteRepository.save(note);
 		noteTemplateRepository.save(note);
 		noteTemplateRepository.addImage(note.getId(), link);
-		
+
 		return link;
 	}
 
 	@Override
 	public void addReminder(long noteId, long time, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
 
+		NoteExtras noteExtras = optionalNoteExtras.get();
+
 		noteExtras.setReminder(new Date(time * 1000));
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
 	public void removeReminnder(long noteId, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
 
+		NoteExtras noteExtras = optionalNoteExtras.get();
+
 		noteExtras.setReminder(null);
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
 	public void deleteImage(String imagename) throws NoteIdRequredException, ImageDeletionException {
-//		Optional<Note> optionalNote = noteRepository.getByImageUrl(imagename);
-//		
-//		if (optionalNote.isPresent()) {
-//			throw new NoteIdRequredException("Image is attached to a note, please provide note id");
-//		}
-		
+		// Optional<Note> optionalNote = noteRepository.getByImageUrl(imagename);
+		//
+		// if (optionalNote.isPresent()) {
+		// throw new NoteIdRequredException("Image is attached to a note, please provide
+		// note id");
+		// }
+
 		File file = new File("images/" + imagename.substring(imagename.lastIndexOf('/') + 1, imagename.length()));
-		
+
 		if (!file.delete()) {
 			throw new ImageDeletionException("Image could not be deleted");
 		}
@@ -375,54 +350,51 @@ public class NoteServiceImpl implements NoteService {
 
 	@Override
 	public void changeColor(long noteId, String color, long userId) {
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-
-		if (noteExtras == null) {
+		if (!optionalNoteExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
-		
+
+		NoteExtras noteExtras = optionalNoteExtras.get();
+
 		noteExtras.setColor(color);
 
-		noteExtrasRepository.save(noteExtras);
+		noteExtrasTemplateRepository.save(noteExtras);
 	}
 
 	@Override
-	public UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException {
+	public UserDto collaborate(long noteId, String email, long userId)
+			throws UserNotFoundException, CollaborationException {
 		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
-		
+
 		if (!optionalNote.isPresent()) {
 			throw new NoteNotFoundException("Note does not exist");
 		}
-		
+
 		Note note = optionalNote.get();
-		
+
 		if (note.getOwner().getId() != userId) {
 			throw new UnAuthorizedException("User does not own the note");
 		}
-		
+
 		Optional<User> optionalUser = userTemplateRepository.findByEmail(email);
 		if (!optionalUser.isPresent()) {
 			throw new UserNotFoundException(String.format("User with email '%s' does not exist", email));
 		}
-		
+
 		User user = optionalUser.get();
-		
-		NoteExtras noteExtras = noteExtrasRepository.findByNoteAndOwner(note, user);
-		if (noteExtras != null) {
+
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
+		if (optionalNoteExtras.isPresent()) {
 			throw new CollaborationException("User already collaborated");
 		}
-		
+
 		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
-		
-		noteExtrasRepository.save(extra);
-		
+
+		noteExtrasTemplateRepository.save(extra);
+
 		return userFactory.getUserDtoFromUser(user);
 	}
-	
+
 }

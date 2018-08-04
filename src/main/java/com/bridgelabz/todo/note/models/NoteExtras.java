@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -48,7 +49,7 @@ public class NoteExtras {
 	@ManyToMany
 	@JoinTable(name = "NoteLabel", joinColumns = { @JoinColumn(name = "NEId") }, inverseJoinColumns = {
 			@JoinColumn(name = "labelId") })
-	private Set<Label> labels;
+	private Set<Label> labels = new HashSet<>();
 
 	public long getId() {
 		return id;
