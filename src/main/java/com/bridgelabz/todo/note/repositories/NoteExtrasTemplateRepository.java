@@ -16,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteExtras;
 import com.bridgelabz.todo.user.models.User;
@@ -53,6 +54,10 @@ public class NoteExtrasTemplateRepository {
 			jdbcTemplate.update(NoteExtrasQueries.INSERT, paramMap, holder);
 
 			extras.setId(holder.getKey().longValue());
+			
+			for (Label label : extras.getLabels()) {
+				addLabel(extras.getId(), label.getId());
+			}
 		} else {
 			paramMap.addValue("id", extras.getId());
 			
@@ -85,6 +90,22 @@ public class NoteExtrasTemplateRepository {
 
 		}
 		return Optional.ofNullable(extras);
+	}
+	
+	public void addLabel(long extrasId, long labelId) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("neid", extrasId);
+		paramMap.addValue("label_id", labelId);
+		
+		jdbcTemplate.update(NoteExtrasQueries.ADD_LABEL, paramMap);
+	}
+	
+	public void removeLabel(long extrasId, long labelId) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("neid", extrasId);
+		paramMap.addValue("label_id", labelId);
+		
+		jdbcTemplate.update(NoteExtrasQueries.REMOVE_LABEL, paramMap);
 	}
 }
 

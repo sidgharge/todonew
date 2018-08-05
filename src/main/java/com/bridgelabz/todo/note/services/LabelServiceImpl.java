@@ -1,8 +1,8 @@
 package com.bridgelabz.todo.note.services;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +16,9 @@ import com.bridgelabz.todo.note.factories.NoteFactory;
 import com.bridgelabz.todo.note.models.CreateLabelDto;
 import com.bridgelabz.todo.note.models.Label;
 import com.bridgelabz.todo.note.models.LabelDto;
-import com.bridgelabz.todo.note.models.Note;
 import com.bridgelabz.todo.note.models.NoteExtras;
-import com.bridgelabz.todo.note.repositories.LabelRepository;
-import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
+import com.bridgelabz.todo.note.repositories.LabelTemplateRepository;
+import com.bridgelabz.todo.note.repositories.NoteExtrasTemplateRepository;
 import com.bridgelabz.todo.user.models.User;
 
 @Service
@@ -29,20 +28,20 @@ public class LabelServiceImpl implements LabelService {
 	private WebApplicationContext context;
 
 	@Autowired
-	private LabelRepository labelRepository;
-
-	@Autowired
 	private NoteFactory noteFactory;
 	
 	@Autowired
-	private NoteExtrasRepository noteExtrasRepository;
+	private LabelTemplateRepository labelTemplateRepository;
+	
+	@Autowired
+	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
 
 	@Override
 	public LabelDto createLabel(CreateLabelDto createLabelDto, long userId) throws LabelNameNotUniqueException {
 		User owner = context.getBean(User.class);
 		owner.setId(userId);
 		
-		Optional<Label> optionalLabel = labelRepository.findByNameAndOwner(createLabelDto.getName(), owner);
+		Optional<Label> optionalLabel = labelTemplateRepository.findByNameAndOwnerId(createLabelDto.getName(), owner.getId());
 		
 		if(optionalLabel.isPresent()) {
 			throw new LabelNameNotUniqueException(String.format("Label with name '%s' already exists", createLabelDto.getName()));
@@ -53,14 +52,14 @@ public class LabelServiceImpl implements LabelService {
 
 		label.setOwner(owner);
 
-		labelRepository.save(label);
+		labelTemplateRepository.save(label);
 
 		return noteFactory.getLabelDtoFromLabel(label);
 	}
 
 	@Override
 	public void updateLabel(LabelDto labelDto, long userId) throws LabelNotFoundException, LabelNameNotUniqueException {
-		Optional<Label> optionalLabel = labelRepository.findById(labelDto.getId());
+		Optional<Label> optionalLabel = labelTemplateRepository.findById(labelDto.getId());
 
 		if (!optionalLabel.isPresent()) {
 			throw new LabelNotFoundException("Label with id " + labelDto.getId() + " not found");
@@ -71,9 +70,8 @@ public class LabelServiceImpl implements LabelService {
 			throw new UnAuthorizedException("User does not own the label");
 		}
 
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-		Optional<Label> oldOptionalLabel = labelRepository.findByNameAndOwner(labelDto.getName(), owner);
+		
+		Optional<Label> oldOptionalLabel = labelTemplateRepository.findByNameAndOwnerId(labelDto.getName(), userId);
 
 		if(oldOptionalLabel.isPresent()) {
 			throw new LabelNameNotUniqueException(String.format("Label with name '%s' already exists", labelDto.getName()));
@@ -81,29 +79,21 @@ public class LabelServiceImpl implements LabelService {
 
 		label.setName(labelDto.getName());
 
-		labelRepository.save(label);
+		labelTemplateRepository.save(label);
 	}
 
 	@Override
 	public List<LabelDto> getLabels(long userId) {
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-
-		List<Label> labels = labelRepository.findByOwner(owner);
-
-		List<LabelDto> dtos = new LinkedList<>();
-
-		for (Label label : labels) {
-			LabelDto dto = noteFactory.getLabelDtoFromLabel(label);
-			dtos.add(dto);
-		}
+		List<Label> labels = labelTemplateRepository.findByOwnerId(userId);
+		
+		List<LabelDto> dtos = labels.stream().map(label -> noteFactory.getLabelDtoFromLabel(label)).collect(Collectors.toList());
 
 		return dtos;
 	}
 
 	@Override
 	public void deleteLabel(long id, long userId) throws LabelNotFoundException {
-		Optional<Label> optionalLabel = labelRepository.findById(id);
+		Optional<Label> optionalLabel = labelTemplateRepository.findById(id);
 
 		if (!optionalLabel.isPresent()) {
 			throw new LabelNotFoundException("Label with id " + id + " does not exist");
@@ -115,12 +105,12 @@ public class LabelServiceImpl implements LabelService {
 			throw new UnAuthorizedException("User does not own the label");
 		}
 
-		labelRepository.delete(label);
+		labelTemplateRepository.delete(label);
 	}
 
 	@Override
 	public void addLabel(long labelId, long noteId, long userId) throws LabelNotFoundException {
-		Optional<Label> optionalLabel = labelRepository.findById(labelId);
+		Optional<Label> optionalLabel = labelTemplateRepository.findById(labelId);
 
 		if (!optionalLabel.isPresent()) {
 			throw new LabelNotFoundException("Label with id " + labelId + " does not exist");
@@ -132,26 +122,18 @@ public class LabelServiceImpl implements LabelService {
 			throw new UnAuthorizedException("User does not own the label");
 		}
 		
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 		
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-		
-		NoteExtras extras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-		
-		if (extras == null) {
+		if (!optionalExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
 		
-		extras.getLabels().add(label);
-		
-		noteExtrasRepository.save(extras);
+		noteExtrasTemplateRepository.addLabel(optionalExtras.get().getId(), labelId);
 	}
 
 	@Override
 	public void removeLabel(long labelId, long noteId, long userId) throws LabelNotFoundException {
-		Optional<Label> optionalLabel = labelRepository.findById(labelId);
+		Optional<Label> optionalLabel = labelTemplateRepository.findById(labelId);
 
 		if (!optionalLabel.isPresent()) {
 			throw new LabelNotFoundException("Label with id " + labelId + " does not exist");
@@ -163,21 +145,15 @@ public class LabelServiceImpl implements LabelService {
 			throw new UnAuthorizedException("User does not own the label");
 		}
 		
-		Note note = context.getBean(Note.class);
-		note.setId(noteId);
+		Optional<NoteExtras> optionalExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
 		
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
-		
-		NoteExtras extras = noteExtrasRepository.findByNoteAndOwner(note, owner);
-		
-		if (extras == null) {
+		if (!optionalExtras.isPresent()) {
 			throw new NoteNotFoundException("Either user doesn't own the note or note doesn't exist");
 		}
 		
-		extras.getLabels().remove(label);
+		NoteExtras extras = optionalExtras.get();
 		
-		noteExtrasRepository.save(extras);
+		noteExtrasTemplateRepository.removeLabel(extras.getId(), labelId);
 	}
 
 }

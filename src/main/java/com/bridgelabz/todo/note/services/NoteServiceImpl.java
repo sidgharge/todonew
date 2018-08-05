@@ -173,25 +173,25 @@ public class NoteServiceImpl implements NoteService {
 	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
-		User owner = context.getBean(User.class);
-		owner.setId(userId);
+//		User owner = context.getBean(User.class);
+//		owner.setId(userId);
+//
+//		List<NoteExtras> extras = noteExtrasRepository.findByOwner(owner);
+//
+//		List<NoteDto> noteDtos = new LinkedList<>();
+//		for (NoteExtras noteExtras : extras) {
+//			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
+//			noteDto.setCollaborators(new ArrayList<>());
+//			noteExtras.getNote().getNoteExtras().forEach(noteExtra -> {
+//				if (noteExtra.getOwner().getId() != noteExtras.getNote().getOwner().getId()) {
+//					UserDto userDto = userFactory.getUserDtoFromUser(noteExtra.getOwner());
+//					noteDto.getCollaborators().add(userDto);
+//				}
+//			});
+//			noteDtos.add(noteDto);
+//		}
 
-		List<NoteExtras> extras = noteExtrasRepository.findByOwner(owner);
-
-		List<NoteDto> noteDtos = new LinkedList<>();
-		for (NoteExtras noteExtras : extras) {
-			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
-			noteDto.setCollaborators(new ArrayList<>());
-			noteExtras.getNote().getNoteExtras().forEach(noteExtra -> {
-				if (noteExtra.getOwner().getId() != noteExtras.getNote().getOwner().getId()) {
-					UserDto userDto = userFactory.getUserDtoFromUser(noteExtra.getOwner());
-					noteDto.getCollaborators().add(userDto);
-				}
-			});
-			noteDtos.add(noteDto);
-		}
-
-		return noteDtos;
+		return noteTemplateRepository.getAllUserNotes(userId);
 	}
 
 	@Override
