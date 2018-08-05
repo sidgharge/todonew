@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +12,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.exceptions.CollaborationException;
@@ -30,17 +27,14 @@ import com.bridgelabz.todo.note.models.NoteExtras;
 import com.bridgelabz.todo.note.models.UpdateNoteDto;
 import com.bridgelabz.todo.note.models.CreateNoteDto;
 import com.bridgelabz.todo.note.models.Label;
-import com.bridgelabz.todo.note.repositories.LabelRepository;
-import com.bridgelabz.todo.note.repositories.NoteExtrasRepository;
+import com.bridgelabz.todo.note.repositories.LabelTemplateRepository;
 import com.bridgelabz.todo.note.repositories.NoteExtrasTemplateRepository;
-import com.bridgelabz.todo.note.repositories.NoteRepository;
 import com.bridgelabz.todo.note.repositories.NoteTemplateRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.factories.UserFactory;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
-import com.bridgelabz.todo.user.repositories.UserRepository;
 import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 
 @Service
@@ -50,13 +44,7 @@ public class NoteServiceImpl implements NoteService {
 	private NoteFactory noteFactory;
 
 	@Autowired
-	private WebApplicationContext context;
-
-	@Autowired
-	private NoteExtrasRepository noteExtrasRepository;
-
-	@Autowired
-	private LabelRepository labelRepository;
+	private LabelTemplateRepository labelTemplateRepository;
 
 	@Autowired
 	private UserFactory userFactory;
@@ -70,7 +58,6 @@ public class NoteServiceImpl implements NoteService {
 	@Autowired
 	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
 
-	// TODO - Label part not working
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
 		NotesUtility.validateNote(createNoteDto);
@@ -90,7 +77,7 @@ public class NoteServiceImpl implements NoteService {
 		noteTemplateRepository.save(note);
 
 		for (long labelId : createNoteDto.getLabels()) {
-			Optional<Label> optionalLabel = labelRepository.findById(labelId);
+			Optional<Label> optionalLabel = labelTemplateRepository.findById(labelId);
 
 			Label label = optionalLabel.get();
 
@@ -173,24 +160,6 @@ public class NoteServiceImpl implements NoteService {
 	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
-//		User owner = context.getBean(User.class);
-//		owner.setId(userId);
-//
-//		List<NoteExtras> extras = noteExtrasRepository.findByOwner(owner);
-//
-//		List<NoteDto> noteDtos = new LinkedList<>();
-//		for (NoteExtras noteExtras : extras) {
-//			NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(noteExtras.getNote(), noteExtras);
-//			noteDto.setCollaborators(new ArrayList<>());
-//			noteExtras.getNote().getNoteExtras().forEach(noteExtra -> {
-//				if (noteExtra.getOwner().getId() != noteExtras.getNote().getOwner().getId()) {
-//					UserDto userDto = userFactory.getUserDtoFromUser(noteExtra.getOwner());
-//					noteDto.getCollaborators().add(userDto);
-//				}
-//			});
-//			noteDtos.add(noteDto);
-//		}
-
 		return noteTemplateRepository.getAllUserNotes(userId);
 	}
 
@@ -385,7 +354,7 @@ public class NoteServiceImpl implements NoteService {
 
 		User user = optionalUser.get();
 
-		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, userId);
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, user.getId());
 		if (optionalNoteExtras.isPresent()) {
 			throw new CollaborationException("User already collaborated");
 		}
