@@ -127,9 +127,15 @@ public class NoteTemplateRepository {
 						note.setTitle(rs.getString("title"));
 						note.setBody(rs.getString("body"));
 						try {
-							note.setCreatedAt(dateFormat.parse(rs.getString("created_at")));
-							note.setUpdatedAt(dateFormat.parse(rs.getString("updated_at")));
-							note.setReminder(dateFormat.parse(rs.getString("reminder")));
+							if(rs.getString("created_at") != null) {
+								note.setCreatedAt(dateFormat.parse(rs.getString("created_at")));
+							}
+							if(rs.getString("updated_at") != null) {
+								note.setUpdatedAt(dateFormat.parse(rs.getString("updated_at")));
+							}
+							if(rs.getString("reminder") != null) {
+								note.setReminder(dateFormat.parse(rs.getString("reminder")));
+							}
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
@@ -151,7 +157,7 @@ public class NoteTemplateRepository {
 						
 					}
 					
-					if(!note.getImageUrls().contains(rs.getString("image_urls"))) {
+					if(!note.getImageUrls().contains(rs.getString("image_urls")) && (rs.getString("image_urls") != null)) {
 						note.getImageUrls().add(rs.getString("image_urls"));
 					}
 					

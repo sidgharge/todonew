@@ -1,6 +1,7 @@
 package com.bridgelabz.todo.note.models;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.bridgelabz.todo.user.models.UserDto;
@@ -15,7 +16,7 @@ public class NoteDto {
 
 	private Date createdAt;
 
-	private List<String> imageUrls;
+	private List<String> imageUrls = new LinkedList<>();
 
 	private Date updatedAt;
 
@@ -29,11 +30,11 @@ public class NoteDto {
 
 	private Date reminder;
 
-	private List<LabelDto> labels;
+	private List<LabelDto> labels = new LinkedList<>();
 	
 	private UserDto owner;
 	
-	private List<UserDto> collaborators;
+	private List<UserDto> collaborators = new LinkedList<>();
 
 	public long getId() {
 		return id;
