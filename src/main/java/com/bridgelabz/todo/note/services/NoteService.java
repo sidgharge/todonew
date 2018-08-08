@@ -1,6 +1,9 @@
 package com.bridgelabz.todo.note.services;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.mail.MessagingException;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,5 +45,5 @@ public interface NoteService {
 
 	String saveImageToNote(MultipartFile image, long id, String url, long userId);
 
-	UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException;
+	UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException, MessagingException, IOException;
 }

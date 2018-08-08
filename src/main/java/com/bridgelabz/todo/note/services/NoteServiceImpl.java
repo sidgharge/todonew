@@ -1,17 +1,24 @@
 package com.bridgelabz.todo.note.services;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.exceptions.CollaborationException;
@@ -33,9 +40,11 @@ import com.bridgelabz.todo.note.repositories.NoteTemplateRepository;
 import com.bridgelabz.todo.note.utils.NotesUtility;
 import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.factories.UserFactory;
+import com.bridgelabz.todo.user.models.Email;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
+import com.bridgelabz.todo.user.services.EmailService;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -57,6 +66,12 @@ public class NoteServiceImpl implements NoteService {
 
 	@Autowired
 	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
+	
+	@Autowired
+	private EmailService emailService;
+	
+	@Value("${collaborate.template.path}")
+	private String collaborateTemplatePath;
 
 	@Override
 	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
@@ -333,8 +348,8 @@ public class NoteServiceImpl implements NoteService {
 	}
 
 	@Override
-	public UserDto collaborate(long noteId, String email, long userId)
-			throws UserNotFoundException, CollaborationException {
+	public UserDto collaborate(long noteId, String emailId, long userId)
+			throws UserNotFoundException, CollaborationException, MessagingException, IOException {
 		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
 
 		if (!optionalNote.isPresent()) {
@@ -347,9 +362,9 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 
-		Optional<User> optionalUser = userTemplateRepository.findByEmail(email);
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(emailId);
 		if (!optionalUser.isPresent()) {
-			throw new UserNotFoundException(String.format("User with email '%s' does not exist", email));
+			throw new UserNotFoundException(String.format("User with email '%s' does not exist", emailId));
 		}
 
 		User user = optionalUser.get();
@@ -362,6 +377,12 @@ public class NoteServiceImpl implements NoteService {
 		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 
 		noteExtrasTemplateRepository.save(extra);
+		
+		File mailFile = ResourceUtils.getFile(collaborateTemplatePath);
+		String mailText = new String(Files.readAllBytes(mailFile.toPath()));
+
+		Email email = userFactory.getEmail(emailId, "Yo", mailText);
+		emailService.sendEmail(email);
 
 		return userFactory.getUserDtoFromUser(user);
 	}

@@ -1,9 +1,11 @@
 package com.bridgelabz.todo.note.controllers;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.Principal;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +205,7 @@ public class NoteController {
 	}
 	
 	@PostMapping("/collaborate/{noteId}")
-	public ResponseEntity<UserDto> collaborate(@PathVariable long noteId, @RequestParam("email") String email, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException {
+	public ResponseEntity<UserDto> collaborate(@PathVariable long noteId, @RequestParam("email") String email, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException, MessagingException, IOException {
 		UserDto userDto = noteService.collaborate(noteId, email, Long.parseLong(principal.getName()));
 		
 		return new ResponseEntity<>(userDto, HttpStatus.OK);
