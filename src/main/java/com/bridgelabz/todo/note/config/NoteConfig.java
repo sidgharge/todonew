@@ -35,5 +35,5 @@ public class NoteConfig {
 	public LabelDto labelDto() {
 		return new LabelDto();
 	}
-
+	
 }

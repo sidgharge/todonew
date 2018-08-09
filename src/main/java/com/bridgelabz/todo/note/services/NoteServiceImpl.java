@@ -17,6 +17,7 @@ import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,15 +67,16 @@ public class NoteServiceImpl implements NoteService {
 
 	@Autowired
 	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
-	
+
 	@Autowired
-	private EmailService emailService;
-	
+	private AsyncService asyncService;
+
 	@Value("${collaborate.template.path}")
 	private String collaborateTemplatePath;
 
 	@Override
-	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
+	public NoteDto createNote(CreateNoteDto createNoteDto, long userId, String origin)
+			throws LabelNotFoundException, IOException, MessagingException {
 		NotesUtility.validateNote(createNoteDto);
 
 		Note note = noteFactory.getNoteFromCreateNoteDto(createNoteDto);
@@ -105,16 +107,17 @@ public class NoteServiceImpl implements NoteService {
 
 		List<UserDto> collaborators = new LinkedList<>();
 
-		if (createNoteDto.getCollaborators() != null) {
-			createNoteDto.getCollaborators().forEach(id -> {
-				User user = userTemplateRepository.findById(id).get();
-				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
+		for (Long id : createNoteDto.getCollaborators()) {
+			User user = userTemplateRepository.findById(id).get();
+			NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 
-				noteExtrasTemplateRepository.save(extra);
+			noteExtrasTemplateRepository.save(extra);
 
-				UserDto dto = userFactory.getUserDtoFromUser(user);
-				collaborators.add(dto);
-			});
+			UserDto dto = userFactory.getUserDtoFromUser(user);
+			collaborators.add(dto);
+
+			asyncService.sendEmailToCollaborator(owner, note, origin, user.getEmail());
+
 		}
 
 		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
@@ -348,7 +351,7 @@ public class NoteServiceImpl implements NoteService {
 	}
 
 	@Override
-	public UserDto collaborate(long noteId, String emailId, long userId)
+	public UserDto collaborate(long noteId, String emailId, long userId, String origin)
 			throws UserNotFoundException, CollaborationException, MessagingException, IOException {
 		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
 
@@ -369,7 +372,8 @@ public class NoteServiceImpl implements NoteService {
 
 		User user = optionalUser.get();
 
-		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, user.getId());
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId,
+				user.getId());
 		if (optionalNoteExtras.isPresent()) {
 			throw new CollaborationException("User already collaborated");
 		}
@@ -377,12 +381,10 @@ public class NoteServiceImpl implements NoteService {
 		NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 
 		noteExtrasTemplateRepository.save(extra);
-		
-		File mailFile = ResourceUtils.getFile(collaborateTemplatePath);
-		String mailText = new String(Files.readAllBytes(mailFile.toPath()));
 
-		Email email = userFactory.getEmail(emailId, "Yo", mailText);
-		emailService.sendEmail(email);
+		User owner = userTemplateRepository.findById(userId).get();
+
+		asyncService.sendEmailToCollaborator(owner, note, origin, emailId);
 
 		return userFactory.getUserDtoFromUser(user);
 	}

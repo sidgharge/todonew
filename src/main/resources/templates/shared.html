@@ -4,27 +4,18 @@
 </head>
 
 <body>
-    <div style="width: 100%;
-            border: 1px solid grey;
-            padding: 10px;">
-        <div style="font-size: 14px;">
-            <span>Ankita</span>
-            <span>&nbsp;(</span>
-            <a href="mailto:ankitaunhalkar19@gmail.com">ankitaunhalkar19@gmail.com</a>
-            <span>)&nbsp;shared a note with you.</span>
-        </div>
-        <div style="font-size: 18px; color: #4184f3;">
-            Yo
-        </div>
-        <button style="background-color: #4184f3;
-            color: white;
-            width: fit-content;
-            outline: none;
-            border: none;
-            padding: 5px;
-            font-weight: 500;
-            cursor: pointer;">Open in Keep</button>
+    <div style="font-size: 14px;">{{firstname}} (
+        <a style="text-decoration: none;" href="mailto:{{email}}">{{email}}</a>) shared a note with you.</div>
+    <br>
+    <div>
+        <a href="{{origin}}" style="color:#4184f3; font-size: 20px; margin: 10px 0;text-decoration: none; line-height: 20px;">{{note.title}}</a>
     </div>
+    <br>
+    <a href="{{origin}}" style="cursor: pointer;background-color:#4184f3; color: white; font-weight: 600; outline: none; border: none;
+        padding: 7px; border-radius: 2px; text-decoration: none; line-height: 100%;">
+        Open in Keep
+        <!-- <button style="cursor: pointer;background-color:#4184f3; color: white; font-weight: 600; outline: none; border: none; padding: 7px; border-radius: 2px;" >Open in Keep</button> -->
+    </a>
 </body>
 
 </html>

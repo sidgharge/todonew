@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,9 +50,9 @@ public class NoteController {
 	private WebApplicationContext context;
 
 	@PostMapping("/create")
-	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, Principal principal)
-			throws LabelNotFoundException {
-		NoteDto noteDto = noteService.createNote(createNoteDto, Long.parseLong(principal.getName()));
+	public ResponseEntity<NoteDto> createNote(@RequestBody CreateNoteDto createNoteDto, @RequestHeader String origin, Principal principal)
+			throws LabelNotFoundException, NumberFormatException, IOException, MessagingException {
+		NoteDto noteDto = noteService.createNote(createNoteDto, Long.parseLong(principal.getName()), origin);
 
 		return new ResponseEntity<>(noteDto, HttpStatus.CREATED);
 	}
@@ -205,8 +206,8 @@ public class NoteController {
 	}
 	
 	@PostMapping("/collaborate/{noteId}")
-	public ResponseEntity<UserDto> collaborate(@PathVariable long noteId, @RequestParam("email") String email, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException, MessagingException, IOException {
-		UserDto userDto = noteService.collaborate(noteId, email, Long.parseLong(principal.getName()));
+	public ResponseEntity<UserDto> collaborate(@PathVariable long noteId, @RequestParam("email") String email, @RequestHeader String origin, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException, MessagingException, IOException {
+		UserDto userDto = noteService.collaborate(noteId, email, Long.parseLong(principal.getName()), origin);
 		
 		return new ResponseEntity<>(userDto, HttpStatus.OK);
 	}

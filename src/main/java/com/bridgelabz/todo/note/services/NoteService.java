@@ -19,7 +19,7 @@ import com.bridgelabz.todo.user.models.UserDto;
 
 public interface NoteService {
 
-	NoteDto createNote(CreateNoteDto noteDto, long userId) throws LabelNotFoundException;
+	NoteDto createNote(CreateNoteDto noteDto, long userId, String origin) throws LabelNotFoundException, IOException, MessagingException;
 
 	void updateNote(UpdateNoteDto noteDto, long userId);
 
@@ -45,5 +45,6 @@ public interface NoteService {
 
 	String saveImageToNote(MultipartFile image, long id, String url, long userId);
 
-	UserDto collaborate(long noteId, String email, long userId) throws UserNotFoundException, CollaborationException, MessagingException, IOException;
+	UserDto collaborate(long noteId, String emailId, long userId, String origin)
+			throws UserNotFoundException, CollaborationException, MessagingException, IOException;
 }
