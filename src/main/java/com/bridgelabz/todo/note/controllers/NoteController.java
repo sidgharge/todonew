@@ -211,4 +211,15 @@ public class NoteController {
 		
 		return new ResponseEntity<>(userDto, HttpStatus.OK);
 	}
+	
+	@PutMapping("/remove-collaborator/{noteId}/{collaboratorId}")
+	public ResponseEntity<Response> removeCollaborator(@PathVariable long noteId, @PathVariable long collaboratorId, Principal principal) throws UserNotFoundException, NumberFormatException, CollaborationException, MessagingException, IOException {
+		noteService.removeCollaborator(noteId, Long.parseLong(principal.getName()), collaboratorId);
+		
+		Response response = new Response();
+		response.setMessage("Collaborator removed successfully");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }

@@ -47,4 +47,6 @@ public interface NoteService {
 
 	UserDto collaborate(long noteId, String emailId, long userId, String origin)
 			throws UserNotFoundException, CollaborationException, MessagingException, IOException;
+
+	void removeCollaborator(long noteId, long parseLong, long collaboratorId);
 }

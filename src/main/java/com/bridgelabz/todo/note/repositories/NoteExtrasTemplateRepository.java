@@ -82,6 +82,13 @@ public class NoteExtrasTemplateRepository {
 		return queryForObject(NoteExtrasQueries.FETCH_BY_NOTE_AND_OWNER, paramMap);
 	}
 	
+	public Optional<NoteExtras> findById(long id) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("id", id);
+
+		return queryForObject(NoteExtrasQueries.FIND_BY_ID, paramMap);
+	}
+	
 	private Optional<NoteExtras> queryForObject(String sql, MapSqlParameterSource paramMap) {
 		NoteExtras extras = null;
 		try {
@@ -106,6 +113,13 @@ public class NoteExtrasTemplateRepository {
 		paramMap.addValue("label_id", labelId);
 		
 		jdbcTemplate.update(NoteExtrasQueries.REMOVE_LABEL, paramMap);
+	}
+	
+	public void delete(long id) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("id", id);
+		
+		jdbcTemplate.update(NoteExtrasQueries.DELETE_BY_ID, paramMap);
 	}
 }
 

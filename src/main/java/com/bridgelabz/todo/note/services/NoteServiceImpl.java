@@ -175,7 +175,6 @@ public class NoteServiceImpl implements NoteService {
 		noteTemplateRepository.delete(note);
 	}
 
-	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
 		return noteTemplateRepository.getAllUserNotes(userId);
@@ -387,6 +386,15 @@ public class NoteServiceImpl implements NoteService {
 		asyncService.sendEmailToCollaborator(owner, note, origin, emailId);
 
 		return userFactory.getUserDtoFromUser(user);
+	}
+	
+	@Override
+	public void removeCollaborator(long noteId, long parseLong, long collaboratorId) {
+		Optional<NoteExtras> optionalExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, collaboratorId);
+		if(optionalExtras.isPresent()) {
+			NoteExtras extras = optionalExtras.get();
+			noteExtrasTemplateRepository.delete(extras.getId());
+		}
 	}
 
 }
