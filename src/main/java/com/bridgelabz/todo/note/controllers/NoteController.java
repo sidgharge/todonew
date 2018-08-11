@@ -186,6 +186,19 @@ public class NoteController {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	@DeleteMapping("/delete-image/{id}")
+	public ResponseEntity<Response> deleteImage(@RequestParam("url") String imagename, @PathVariable long id, HttpServletRequest request, Principal principal)
+			throws MalformedURLException, NoteIdRequredException, ImageDeletionException {
+
+		noteService.deleteImage(imagename, id, Long.parseLong(principal.getName()));
+
+		Response response = new Response();
+		response.setMessage("Image successfully deleted");
+		response.setStatus(1);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<Response> deleteNote(@PathVariable("id") long noteId, Principal principal) {

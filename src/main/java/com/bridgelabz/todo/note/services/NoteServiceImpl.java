@@ -333,6 +333,25 @@ public class NoteServiceImpl implements NoteService {
 			throw new ImageDeletionException("Image could not be deleted");
 		}
 	}
+	
+	@Override
+	public void deleteImage(String imagename, long id, long userId) throws NoteIdRequredException, ImageDeletionException {
+		Optional<Note> optionalNote = noteTemplateRepository.findById(id);
+
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Cannot find note with id " + id);
+		}
+
+		Note note = optionalNote.get();
+
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
+		
+		deleteImage(imagename);
+		
+		noteTemplateRepository.deleteImage(id, imagename);
+	}
 
 	@Override
 	public void changeColor(long noteId, String color, long userId) {

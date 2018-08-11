@@ -49,4 +49,6 @@ public interface NoteService {
 			throws UserNotFoundException, CollaborationException, MessagingException, IOException;
 
 	void removeCollaborator(long noteId, long parseLong, long collaboratorId);
+
+	void deleteImage(String imagename, long id, long userId) throws NoteIdRequredException, ImageDeletionException;
 }
