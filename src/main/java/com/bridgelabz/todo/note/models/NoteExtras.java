@@ -3,30 +3,30 @@ package com.bridgelabz.todo.note.models;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
+//
+//import javax.persistence.Entity;
+//import javax.persistence.FetchType;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.JoinColumn;
+//import javax.persistence.JoinTable;
+//import javax.persistence.ManyToMany;
+//import javax.persistence.ManyToOne;
+//import javax.persistence.OneToOne;
+//import javax.persistence.Table;
+//
+//import org.hibernate.annotations.GenericGenerator;
 
 import com.bridgelabz.todo.user.models.User;
 
-@Entity
-@Table
+//@Entity
+//@Table
 public class NoteExtras {
 
-	@Id
-	@GeneratedValue(generator = "noteextrasidgenerator", strategy = GenerationType.AUTO)
-	@GenericGenerator(name = "noteextrasidgenerator", strategy = "native")
+//	@Id
+//	@GeneratedValue(generator = "noteextrasidgenerator", strategy = GenerationType.AUTO)
+//	@GenericGenerator(name = "noteextrasidgenerator", strategy = "native")
 	private long id;
 
 	private boolean isPinned;
@@ -39,16 +39,16 @@ public class NoteExtras {
 
 	private Date reminder;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "noteId")
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "noteId")
 	private Note note;
 
-	@OneToOne(fetch = FetchType.LAZY)
+//	@OneToOne(fetch = FetchType.LAZY)
 	private User owner;
 
-	@ManyToMany
-	@JoinTable(name = "NoteLabel", joinColumns = { @JoinColumn(name = "NEId") }, inverseJoinColumns = {
-			@JoinColumn(name = "labelId") })
+//	@ManyToMany
+//	@JoinTable(name = "NoteLabel", joinColumns = { @JoinColumn(name = "NEId") }, inverseJoinColumns = {
+//			@JoinColumn(name = "labelId") })
 	private Set<Label> labels = new HashSet<>();
 
 	public long getId() {

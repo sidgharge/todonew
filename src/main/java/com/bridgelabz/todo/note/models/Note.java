@@ -3,27 +3,27 @@ package com.bridgelabz.todo.note.models;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
+//import javax.persistence.ElementCollection;
+//import javax.persistence.Entity;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.JoinColumn;
+//import javax.persistence.ManyToOne;
+//import javax.persistence.OneToMany;
+//import javax.persistence.Table;
+//
+//import org.hibernate.annotations.GenericGenerator;
 
 import com.bridgelabz.todo.user.models.User;
 
-@Entity
-@Table
+//@Entity
+//@Table
 public class Note {
 
-	@Id
-	@GeneratedValue(generator = "noteidgenerator", strategy = GenerationType.AUTO)
-	@GenericGenerator(name = "noteidgenerator", strategy = "native")
+//	@Id
+//	@GeneratedValue(generator = "noteidgenerator", strategy = GenerationType.AUTO)
+//	@GenericGenerator(name = "noteidgenerator", strategy = "native")
 	private long id;
 
 	private String title;
@@ -34,14 +34,14 @@ public class Note {
 
 	private Date updatedAt;
 
-	@ElementCollection
+	//@ElementCollection
 	private List<String> imageUrls;
 
-	@ManyToOne
-	@JoinColumn(name = "ownerId")
+//	@ManyToOne
+//	@JoinColumn(name = "ownerId")
 	private User owner;
 
-	@OneToMany(mappedBy = "note")
+//	@OneToMany(mappedBy = "note")
 	private List<NoteExtras> noteExtras;
 	
 	public long getId() {

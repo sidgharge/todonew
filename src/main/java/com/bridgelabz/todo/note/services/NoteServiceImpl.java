@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.exceptions.CollaborationException;
@@ -38,6 +39,7 @@ import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 
 @Service
+@Transactional(rollbackFor=RuntimeException.class)
 public class NoteServiceImpl implements NoteService {
 
 	@Autowired
@@ -136,6 +138,8 @@ public class NoteServiceImpl implements NoteService {
 		note.setUpdatedAt(new Date());
 
 		noteTemplateRepository.save(note);
+		
+		throw new RuntimeException("Yahoo");
 	}
 
 	@Override

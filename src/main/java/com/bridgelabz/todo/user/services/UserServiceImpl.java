@@ -30,15 +30,11 @@ import com.bridgelabz.todo.user.models.ResetPasswordDto;
 import com.bridgelabz.todo.user.models.User;
 import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserRedisRepository;
-import com.bridgelabz.todo.user.repositories.UserRepository;
 import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 import com.bridgelabz.todo.user.utils.UserUtility;
 
 @Service
 public class UserServiceImpl implements UserService {
-
-	@Autowired
-	private UserRepository userRepository;
 
 	@Autowired
 	private UserFactory userFactory;

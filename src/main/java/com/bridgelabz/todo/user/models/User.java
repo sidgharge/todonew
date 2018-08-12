@@ -1,20 +1,20 @@
 package com.bridgelabz.todo.user.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
-
-@Entity
-@Table
+//import javax.persistence.Entity;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.Table;
+//
+//import org.hibernate.annotations.GenericGenerator;
+//
+//@Entity
+//@Table
 public class User {
 
-	@Id
-	@GenericGenerator(name = "userid_generator", strategy = "native")
-	@GeneratedValue(generator = "userid_generator", strategy = GenerationType.AUTO)
+//	@Id
+//	@GenericGenerator(name = "userid_generator", strategy = "native")
+//	@GeneratedValue(generator = "userid_generator", strategy = GenerationType.AUTO)
 	private long id;
 
 	private String firstname;

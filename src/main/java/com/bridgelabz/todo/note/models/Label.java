@@ -2,33 +2,25 @@ package com.bridgelabz.todo.note.models;
 
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
 
 import com.bridgelabz.todo.user.models.User;
 
-@Entity
-@Table
+//@Entity
+//@Table
 public class Label {
 
-	@Id
-	@GenericGenerator(name = "labelIdGenerator", strategy = "native")
-	@GeneratedValue(generator = "labelIdGenerator", strategy = GenerationType.AUTO)
+	//@Id
+	//@GenericGenerator(name = "labelIdGenerator", strategy = "native")
+	//@GeneratedValue(generator = "labelIdGenerator", strategy = GenerationType.AUTO)
 	private long id;
 
 	private String name;
 
-	@ManyToMany(mappedBy = "labels")
+	//@ManyToMany(mappedBy = "labels")
 	private List<NoteExtras> noteExtras;
 
-	@ManyToOne
+	//@ManyToOne
 	private User owner;
 
 	public long getId() {

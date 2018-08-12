@@ -13,13 +13,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.bridgelabz.todo.user.models.User;
-import com.bridgelabz.todo.user.repositories.UserRepository;
+import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Autowired
-	private UserRepository userReposiroty;
+	private UserTemplateRepository userReposiroty;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
