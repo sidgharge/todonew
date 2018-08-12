@@ -2,17 +2,17 @@ package com.bridgelabz.todo;
 
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-public class JsonRequest {
-
+public class TestRequest {
 	private String url;
 
-	private Map<String, Object> headers;
+	private HttpHeaders headers;
 
 	private Map<String, Object> body;
 
-	private RequestMethod method;
+	private String method;
 
 	public String getUrl() {
 		return url;
@@ -22,11 +22,11 @@ public class JsonRequest {
 		this.url = url;
 	}
 
-	public Map<String, Object> getHeaders() {
+	public HttpHeaders getHeaders() {
 		return headers;
 	}
 
-	public void setHeaders(Map<String, Object> headers) {
+	public void setHeaders(HttpHeaders headers) {
 		this.headers = headers;
 	}
 
@@ -38,11 +38,11 @@ public class JsonRequest {
 		this.body = body;
 	}
 
-	public RequestMethod getMethod() {
+	public String getMethod() {
 		return method;
 	}
 
-	public void setMethod(RequestMethod method) {
+	public void setMethod(String method) {
 		this.method = method;
 	}
 

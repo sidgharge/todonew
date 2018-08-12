@@ -38,7 +38,6 @@ import com.bridgelabz.todo.user.exceptions.UserNotFoundException;
 import com.bridgelabz.todo.user.models.Response;
 import com.bridgelabz.todo.user.models.UserDto;
 
-//@CrossOrigin
 @RestController
 @RequestMapping("notes")
 public class NoteController {

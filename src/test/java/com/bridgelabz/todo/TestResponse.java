@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
-public class JsonResponse {
-
+public class TestResponse {
+	
 	private HttpStatus status;
 
 	private Map<String, Object> headers;
@@ -35,5 +35,4 @@ public class JsonResponse {
 	public void setBody(Map<String, Object> body) {
 		this.body = body;
 	}
-
 }
