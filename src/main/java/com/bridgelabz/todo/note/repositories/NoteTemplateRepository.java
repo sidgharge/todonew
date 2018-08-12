@@ -87,6 +87,14 @@ public class NoteTemplateRepository {
 		jdbcTemplate.update(NoteQueries.DELETE_BY_ID, paramMap);
 	}
 	
+	public void deleteImage(long id, String url) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("note_id", id);
+		paramMap.addValue("image_urls", url);
+		
+		jdbcTemplate.update(NoteQueries.DELETE_NOTE_IMAGE, paramMap);
+	}
+	
 	
 	public Optional<Note> findById(long id) {
 		MapSqlParameterSource paramMap = new MapSqlParameterSource();

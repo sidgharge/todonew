@@ -1,0 +1,24 @@
+[
+	{
+		"request": {
+			"url": "/demo",
+			"headers": {
+				
+			},
+			"body": {
+				
+			},
+			"method": "GET"
+		},
+		"response": {
+			"status": "OK",
+			"headers": {
+				
+			},
+			"body": {
+				"message": "Yo",
+				"status": 1
+			}
+		}
+	}
+]

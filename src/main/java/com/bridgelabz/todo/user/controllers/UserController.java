@@ -40,37 +40,40 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private WebApplicationContext context;
-	
+
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request) throws MessagingException, IOException, RegistrationException, EmailAlreadyRegisteredException {
-		
+	public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto, HttpServletRequest request)
+			throws MessagingException, IOException, RegistrationException, EmailAlreadyRegisteredException {
+
 		String url = UserUtility.getRequestUrl(request);
 		userService.register(registrationDto, url);
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Succesfully registered");
 		response.setStatus(1);
-		
+
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
-	
+
 	@GetMapping("/activate")
-	public ResponseEntity<?> activateUser(@RequestParam("token") String token) throws UserActivationException{
+	public ResponseEntity<?> activateUser(@RequestParam("token") String token) throws UserActivationException {
 		userService.activateUser(token);
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Email id successfully verified");
 		response.setStatus(1);
-		
+
 		return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
 	}
-	
+
 	@PostMapping("/user/upload-image")
-	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image, Principal principal) throws MalformedURLException {
-		String link = userService.uploadProfilePicture(image, NotesUtility.getUrl(request, ""), Long.parseLong(principal.getName()));
+	public ResponseEntity<Response> uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image,
+			Principal principal) throws MalformedURLException {
+		String link = userService.uploadProfilePicture(image, NotesUtility.getUrl(request, ""),
+				Long.parseLong(principal.getName()));
 
 		Response response = context.getBean(Response.class);
 		response.setMessage(link);
@@ -78,40 +81,51 @@ public class UserController {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/user/profile")
 	public ResponseEntity<UserDto> getUserProfile(Principal principal) {
 		UserDto userDto = userService.getUserProfile(Long.parseLong(principal.getName()));
-		
+
 		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/user/profilebyemail")
-	public ResponseEntity<UserDto> getUserProfile(@RequestParam("email") String email) throws UserNotFoundException{
+	public ResponseEntity<UserDto> getUserProfile(@RequestParam("email") String email) throws UserNotFoundException {
 		UserDto userDto = userService.getUserProfile(email);
-		
+
 		return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/send-reset-link")
-	public ResponseEntity<Response> sendResetLink(@RequestParam("email") String email, @RequestHeader("origin") String url) throws UserNotFoundException, MessagingException, IOException {
+	public ResponseEntity<Response> sendResetLink(@RequestParam("email") String email,
+			@RequestHeader("origin") String url) throws UserNotFoundException, MessagingException, IOException {
 		userService.sendResetLink(email, url);
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Activation link sent succefully");
 		response.setStatus(1);
-		
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@PutMapping("/reset-password")
-	public ResponseEntity<Response> resetPassword(@RequestHeader("token") String token, @RequestBody ResetPasswordDto resetPassword) throws TokenMalformedException, InvalidPasswordException {
+	public ResponseEntity<Response> resetPassword(@RequestHeader("token") String token,
+			@RequestBody ResetPasswordDto resetPassword) throws TokenMalformedException, InvalidPasswordException {
 		userService.resetPassword(token, resetPassword);
-		
+
 		Response response = context.getBean(Response.class);
 		response.setMessage("Password reseted succefully");
 		response.setStatus(1);
-		
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@GetMapping("demo")
+	public ResponseEntity<Response> demo() {
+		Response response = context.getBean(Response.class);
+		response.setMessage("Yo");
+		response.setStatus(1);
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

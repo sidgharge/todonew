@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 		String token = UserUtility.generate(user.getId(), -1, "activation_token");
 		mailText = mailText.replace("@link", url + "/activate?token=" + token);
 
-		Email email = userFactory.getEmail("ghargesiddharth@gmail.com", "User activation", mailText);
+		Email email = userFactory.getEmail(registrationDto.getEmail(), "User activation", mailText);
 		emailService.sendEmail(email);
 	}
 
@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService {
 
 		mailText = mailText.replace("@link", url + "/reset?token=" + token);
 
-		Email email = userFactory.getEmail("ghargesiddharth@gmail.com", "Reset password Link", mailText);
+		Email email = userFactory.getEmail(emailId, "Reset password Link", mailText);
 		emailService.sendEmail(email);
 	}
 	

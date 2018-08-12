@@ -1,18 +1,25 @@
 package com.bridgelabz.todo.note.services;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.todo.note.exceptions.CollaborationException;
@@ -39,7 +46,6 @@ import com.bridgelabz.todo.user.models.UserDto;
 import com.bridgelabz.todo.user.repositories.UserTemplateRepository;
 
 @Service
-@Transactional(rollbackFor=RuntimeException.class)
 public class NoteServiceImpl implements NoteService {
 
 	@Autowired
@@ -60,8 +66,15 @@ public class NoteServiceImpl implements NoteService {
 	@Autowired
 	private NoteExtrasTemplateRepository noteExtrasTemplateRepository;
 
+	@Autowired
+	private AsyncService asyncService;
+
+	@Value("${collaborate.template.path}")
+	private String collaborateTemplatePath;
+
 	@Override
-	public NoteDto createNote(CreateNoteDto createNoteDto, long userId) throws LabelNotFoundException {
+	public NoteDto createNote(CreateNoteDto createNoteDto, long userId, String origin)
+			throws LabelNotFoundException, IOException, MessagingException {
 		NotesUtility.validateNote(createNoteDto);
 
 		Note note = noteFactory.getNoteFromCreateNoteDto(createNoteDto);
@@ -92,16 +105,17 @@ public class NoteServiceImpl implements NoteService {
 
 		List<UserDto> collaborators = new LinkedList<>();
 
-		if (createNoteDto.getCollaborators() != null) {
-			createNoteDto.getCollaborators().forEach(id -> {
-				User user = userTemplateRepository.findById(id).get();
-				NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
+		for (Long id : createNoteDto.getCollaborators()) {
+			User user = userTemplateRepository.findById(id).get();
+			NoteExtras extra = noteFactory.getDefaultNoteExtrasFromNoteAndUser(note, user);
 
-				noteExtrasTemplateRepository.save(extra);
+			noteExtrasTemplateRepository.save(extra);
 
-				UserDto dto = userFactory.getUserDtoFromUser(user);
-				collaborators.add(dto);
-			});
+			UserDto dto = userFactory.getUserDtoFromUser(user);
+			collaborators.add(dto);
+
+			asyncService.sendEmailToCollaborator(owner, note, origin, user.getEmail());
+
 		}
 
 		NoteDto noteDto = noteFactory.getNoteDtoFromNoteAndExtras(note, extras);
@@ -161,7 +175,6 @@ public class NoteServiceImpl implements NoteService {
 		noteTemplateRepository.delete(note);
 	}
 
-	// TODO - left completely
 	@Override
 	public List<NoteDto> getAllNotes(long userId) {
 		return noteTemplateRepository.getAllUserNotes(userId);
@@ -320,6 +333,25 @@ public class NoteServiceImpl implements NoteService {
 			throw new ImageDeletionException("Image could not be deleted");
 		}
 	}
+	
+	@Override
+	public void deleteImage(String imagename, long id, long userId) throws NoteIdRequredException, ImageDeletionException {
+		Optional<Note> optionalNote = noteTemplateRepository.findById(id);
+
+		if (!optionalNote.isPresent()) {
+			throw new NoteNotFoundException("Cannot find note with id " + id);
+		}
+
+		Note note = optionalNote.get();
+
+		if (note.getOwner().getId() != userId) {
+			throw new UnAuthorizedException("User does not own the note");
+		}
+		
+		deleteImage(imagename);
+		
+		noteTemplateRepository.deleteImage(id, imagename);
+	}
 
 	@Override
 	public void changeColor(long noteId, String color, long userId) {
@@ -337,8 +369,8 @@ public class NoteServiceImpl implements NoteService {
 	}
 
 	@Override
-	public UserDto collaborate(long noteId, String email, long userId)
-			throws UserNotFoundException, CollaborationException {
+	public UserDto collaborate(long noteId, String emailId, long userId, String origin)
+			throws UserNotFoundException, CollaborationException, MessagingException, IOException {
 		Optional<Note> optionalNote = noteTemplateRepository.findById(noteId);
 
 		if (!optionalNote.isPresent()) {
@@ -351,14 +383,15 @@ public class NoteServiceImpl implements NoteService {
 			throw new UnAuthorizedException("User does not own the note");
 		}
 
-		Optional<User> optionalUser = userTemplateRepository.findByEmail(email);
+		Optional<User> optionalUser = userTemplateRepository.findByEmail(emailId);
 		if (!optionalUser.isPresent()) {
-			throw new UserNotFoundException(String.format("User with email '%s' does not exist", email));
+			throw new UserNotFoundException(String.format("User with email '%s' does not exist", emailId));
 		}
 
 		User user = optionalUser.get();
 
-		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, user.getId());
+		Optional<NoteExtras> optionalNoteExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId,
+				user.getId());
 		if (optionalNoteExtras.isPresent()) {
 			throw new CollaborationException("User already collaborated");
 		}
@@ -367,7 +400,20 @@ public class NoteServiceImpl implements NoteService {
 
 		noteExtrasTemplateRepository.save(extra);
 
+		User owner = userTemplateRepository.findById(userId).get();
+
+		asyncService.sendEmailToCollaborator(owner, note, origin, emailId);
+
 		return userFactory.getUserDtoFromUser(user);
+	}
+	
+	@Override
+	public void removeCollaborator(long noteId, long parseLong, long collaboratorId) {
+		Optional<NoteExtras> optionalExtras = noteExtrasTemplateRepository.findByNoteIdAndOwnerId(noteId, collaboratorId);
+		if(optionalExtras.isPresent()) {
+			NoteExtras extras = optionalExtras.get();
+			noteExtrasTemplateRepository.delete(extras.getId());
+		}
 	}
 
 }

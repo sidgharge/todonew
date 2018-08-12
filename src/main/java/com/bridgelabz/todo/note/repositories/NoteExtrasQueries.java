@@ -4,6 +4,10 @@ public interface NoteExtrasQueries {
 
 	String DELETE_BY_NOTE_ID = "DELETE FROM note_extras WHERE note_id = :note_id";
 	
+	String DELETE_BY_ID = "DELETE FROM note_extras WHERE id = :id";
+	
+	String FIND_BY_ID = "SELECT * FROM note_extras WHERE id = :id";
+	
 	String FETCH_BY_NOTE_AND_OWNER = "SELECT * FROM note_extras WHERE note_id = :note_id AND owner_id = :owner_id";
 
 	String INSERT = "INSERT INTO note_extras (color, is_archived, is_pinned, is_trashed, reminder, note_id, owner_id) VALUES (:color, :is_archived, :is_pinned, :is_trashed, :reminder, :note_id, :owner_id)";
