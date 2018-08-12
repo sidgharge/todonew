@@ -17,4 +17,6 @@ public interface NoteExtrasQueries {
 	String ADD_LABEL = "INSERT INTO note_label (neid, label_id) VALUES (:neid, :label_id)";
 
 	String REMOVE_LABEL = "DELETE FROM note_label WHERE neid = :neid AND label_id = :label_id";
+
+	String CHECK_IF_EXISTS_BY_NOTE_AND_OWNER = "SELECT EXISTS(SELECT * FROM note_extras WHERE note_id = :note_id AND owner_id = :owner_id);";
 }

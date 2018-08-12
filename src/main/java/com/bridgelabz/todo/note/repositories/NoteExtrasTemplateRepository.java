@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -120,6 +122,24 @@ public class NoteExtrasTemplateRepository {
 		paramMap.addValue("id", id);
 		
 		jdbcTemplate.update(NoteExtrasQueries.DELETE_BY_ID, paramMap);
+	}
+	
+	public boolean checkIfExistsByNoteIdAndUserId(long noteId, long userId) {
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+		paramMap.addValue("note_id", noteId);
+		paramMap.addValue("owner_id", userId);
+		
+		return jdbcTemplate.query(NoteExtrasQueries.CHECK_IF_EXISTS_BY_NOTE_AND_OWNER, paramMap, new ResultSetExtractor<Boolean>() {
+
+			@Override
+			public Boolean extractData(ResultSet rs) throws SQLException, DataAccessException {
+				boolean exists = false;
+				if(rs.next()) {
+					exists = rs.getBoolean(1);
+				}
+				return exists;
+			}
+		});
 	}
 }
 

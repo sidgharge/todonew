@@ -139,7 +139,10 @@ public class NoteServiceImpl implements NoteService {
 		Note note = optionalNote.get();
 
 		if (note.getOwner().getId() != userId) {
-			throw new UnAuthorizedException("User does not own the note");
+			boolean exists = noteExtrasTemplateRepository.checkIfExistsByNoteIdAndUserId(noteDto.getId(), userId);
+			if(!exists) {
+				throw new UnAuthorizedException("User does not own the note");
+			}
 		}
 
 		if (noteDto.getTitle() != null) {
@@ -152,8 +155,6 @@ public class NoteServiceImpl implements NoteService {
 		note.setUpdatedAt(new Date());
 
 		noteTemplateRepository.save(note);
-		
-		throw new RuntimeException("Yahoo");
 	}
 
 	@Override
@@ -272,7 +273,10 @@ public class NoteServiceImpl implements NoteService {
 		Note note = optionalNote.get();
 
 		if (note.getOwner().getId() != userId) {
-			throw new UnAuthorizedException("User does not own the note");
+			boolean exists = noteExtrasTemplateRepository.checkIfExistsByNoteIdAndUserId(id, userId);
+			if(!exists) {
+				throw new UnAuthorizedException("User does not own the note");
+			}
 		}
 
 		String link = saveImage(image);
@@ -345,7 +349,10 @@ public class NoteServiceImpl implements NoteService {
 		Note note = optionalNote.get();
 
 		if (note.getOwner().getId() != userId) {
-			throw new UnAuthorizedException("User does not own the note");
+			boolean exists = noteExtrasTemplateRepository.checkIfExistsByNoteIdAndUserId(id, userId);
+			if(!exists) {
+				throw new UnAuthorizedException("User does not own the note");
+			}
 		}
 		
 		deleteImage(imagename);
@@ -380,7 +387,10 @@ public class NoteServiceImpl implements NoteService {
 		Note note = optionalNote.get();
 
 		if (note.getOwner().getId() != userId) {
-			throw new UnAuthorizedException("User does not own the note");
+			boolean exists = noteExtrasTemplateRepository.checkIfExistsByNoteIdAndUserId(noteId, userId);
+			if(!exists) {
+				throw new UnAuthorizedException("User does not own the note");
+			}
 		}
 
 		Optional<User> optionalUser = userTemplateRepository.findByEmail(emailId);
