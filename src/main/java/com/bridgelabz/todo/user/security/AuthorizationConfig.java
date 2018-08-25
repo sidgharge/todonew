@@ -34,7 +34,7 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		clients.inMemory().withClient("todo").secret(passwordEncoder.encode("todo")).scopes("read", "write").autoApprove(true)
-				.authorities("read", "write").authorizedGrantTypes("password");
+				.authorities("read", "write").authorizedGrantTypes("password").accessTokenValiditySeconds(-1);
 	}
 
 	@Override
