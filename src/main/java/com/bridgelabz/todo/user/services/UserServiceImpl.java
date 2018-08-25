@@ -1,9 +1,7 @@
 package com.bridgelabz.todo.user.services;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.Optional;
 import java.util.UUID;

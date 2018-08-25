@@ -1,6 +1,5 @@
 package com.bridgelabz.todo.user.services;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.mail.MessagingException;
